@@ -40,7 +40,7 @@ def reconstruct_image_from_representation(args, should_reconstruct_content=True,
     style_img_path = os.path.join(style_images_dir, args.style_img_name)
 
     img_path = content_img_path if should_reconstruct_content else style_img_path
-    img = utils.load_image(img_path, is_pil=True)
+    img = utils.load_image(img_path, return_pil=True)
     print('Image to reconstruct shape=', np.array(img).shape)
 
     transform = transforms.Compose([

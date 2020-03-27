@@ -16,6 +16,13 @@ Most of NST repos were written in TensorFlow (before it even had L-BFGS optimize
 
 ## Requirements
 
+Just run 'conda env create' from this directory and you are good to go.
+(It will automatically execute environment.yml file and create a conda environment named pytorch-nst)
+
+torch will install some version of CUDA with it but it is highly recommended that you install system wide CUDA
+
+Also install miniconda
+
 ## Usage
 
 ## Acknowledgements

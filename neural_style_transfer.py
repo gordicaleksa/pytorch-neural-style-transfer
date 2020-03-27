@@ -1,15 +1,12 @@
 import utils.utils as utils
 from utils.video_utils import create_video_from_intermediate_results
-from models.definitions.vgg_nets import Vgg16
+from models.definitions.vgg_nets import Vgg16, Vgg19
 
-from torchvision import transforms
 import torch
-import torch.nn as nn
 from torch.optim import Adam, LBFGS
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 import os
 import argparse
 
@@ -17,39 +14,43 @@ import argparse
 cnt = 0
 
 
+# initially it takes some time for PyTorch to download the models
 def prepare_model(model, device):
     if model == 'vgg16':
         # we are not tuning model weights -> we are tuning optimizing_img's pixels! (that's why requires_grad=False)
-        return Vgg16(requires_grad=False).to(device).eval()
+        return Vgg16(requires_grad=False, show_progress=True).to(device).eval()
+    elif model == 'vgg19':
+        return Vgg19(requires_grad=False, show_progress=True).to(device).eval()
     else:
         raise ValueError(f'{model} not supported.')
 
 
-def neural_style_transfer(optimization_config):
-    content_img_path = os.path.join(content_images_dir, optimization_config['content_img_name'])
-    style_img_path = os.path.join(style_images_dir, optimization_config['style_img_name'])
+def neural_style_transfer(config):
+    content_img_path = os.path.join(content_images_dir, config['content_img_name'])
+    style_img_path = os.path.join(style_images_dir, config['style_img_name'])
 
-    dump_path = os.path.join(output_img_dir, 'combined_' + os.path.split(content_img_path)[1].split('.')[0] + '_' + os.path.split(style_img_path)[1].split('.')[0])
+    out_dir_name = 'combined_' + os.path.split(content_img_path)[1].split('.')[0] + '_' + os.path.split(style_img_path)[1].split('.')[0]
+    dump_path = os.path.join(config['output_img_dir'], out_dir_name)
     os.makedirs(dump_path, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    content_img_prenorm, content_img = utils.prepare_img(content_img_path, optimization_config['width'], device)
-    style_img_prenorm, style_img = utils.prepare_img(style_img_path, optimization_config['width'], device)
+    content_img_prenorm, content_img = utils.prepare_img(content_img_path, config['width'], device)
+    style_img_prenorm, style_img = utils.prepare_img(style_img_path, config['width'], device)
 
-    if optimization_config['init_method'] == 'random':
+    if config['init_method'] == 'random':
         # todo: try other values other than 0.1
         # hacky way to set standard deviation to 0.1 <- no specific reason for 0.1, it just works fine
         init_img = torch.randn(content_img.shape, device=device) * 0.1
-    elif optimization_config['init_method'] == 'content':
+    elif config['init_method'] == 'content':
         init_img = content_img_prenorm
     else:
         init_img = style_img_prenorm
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
 
-    neural_net = prepare_model(optimization_config['model'], device)
-    print(f'Using {optimization_config["model"]} in the optimization procedure.')
+    neural_net = prepare_model(config['model'], device)
+    print(f'Using {config["model"]} in the optimization procedure.')
 
     content_features = neural_net(content_img)
     style_features = neural_net(style_img)
@@ -59,9 +60,9 @@ def neural_style_transfer(optimization_config):
 
     loss_fn = torch.nn.MSELoss(reduction='mean')
 
-    content_weight = optimization_config['content_weight']
-    style_weight = optimization_config['style_weight']
-    tv_weight = optimization_config['tv_weight']
+    content_weight = config['content_weight']
+    style_weight = config['style_weight']
+    tv_weight = config['tv_weight']
 
     def closure():
         global cnt
@@ -83,7 +84,7 @@ def neural_style_transfer(optimization_config):
         total_loss.backward()
         with torch.no_grad():
             print(f'L-BFGS | iteration: {cnt:03}, current loss={total_loss.item()}')
-            utils.save_display(optimizing_img, dump_path, cnt, should_save=True, should_display=False)
+            utils.save_display(optimizing_img, dump_path, cnt, config['image_format'], should_save=True, should_display=False)
             cnt += 1
         return total_loss
 

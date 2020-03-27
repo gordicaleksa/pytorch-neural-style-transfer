@@ -2,17 +2,18 @@ from collections import namedtuple
 import torch
 from torchvision import models
 
-#
-# more detail can be found here (torchvision GitHub):
-# https://github.com/pytorch/vision/blob/3c254fb7af5f8af252c24e89949c54a3461ff0be/torchvision/models/vgg.py
-#
+"""
+    More detail about the VGG architecture (if you want to understand magic/hardcoded numbers) can be found here:
+    
+    https://github.com/pytorch/vision/blob/3c254fb7af5f8af252c24e89949c54a3461ff0be/torchvision/models/vgg.py
+"""
 
 
-# only those layers are exposed which have already been proved to work nice
 class Vgg16(torch.nn.Module):
-    def __init__(self, requires_grad=False):
+    """Only those layers are exposed which have already proven to work nicely."""
+    def __init__(self, requires_grad=False, show_progress=False):
         super().__init__()
-        vgg_pretrained_features = models.vgg16(pretrained=True).features
+        vgg_pretrained_features = models.vgg16(pretrained=True, progress=show_progress).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
         self.slice3 = torch.nn.Sequential()
@@ -30,21 +31,21 @@ class Vgg16(torch.nn.Module):
                 param.requires_grad = False
 
     def forward(self, x):
-        h = self.slice1(x)
-        h_relu1_2 = h
-        h = self.slice2(h)
-        h_relu2_2 = h
-        h = self.slice3(h)
-        h_relu3_3 = h
-        h = self.slice4(h)
-        h_relu4_3 = h
+        x = self.slice1(x)
+        relu1_2 = x
+        x = self.slice2(x)
+        relu2_2 = x
+        x = self.slice3(x)
+        relu3_3 = x
+        x = self.slice4(x)
+        relu4_3 = x
         vgg_outputs = namedtuple("VggOutputs", ['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3'])
-        out = vgg_outputs(h_relu1_2, h_relu2_2, h_relu3_3, h_relu4_3)
+        out = vgg_outputs(relu1_2, relu2_2, relu3_3, relu4_3)
         return out
 
 
-# everything exposed so you can play with different combinations for style and content representation
 class Vgg16Experimental(torch.nn.Module):
+    """Everything exposed so you can play with different combinations for style and content representation"""
     def __init__(self, requires_grad=False):
         super().__init__()
         vgg_pretrained_features = models.vgg16(pretrained=True).features
@@ -149,38 +150,51 @@ class Vgg16Experimental(torch.nn.Module):
         return out
 
 
-#
-# Used in the original NST paper, only those layers are exposed which have already been proved to work nice
-#
 class Vgg19(torch.nn.Module):
-    def __init__(self, requires_grad=False):
+    """
+    Used in the original NST paper, only those layers are exposed which were used in the original paper
+
+    'conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1' were used for style representation
+    'conv4_2' was used for content representation (although they did some experiments with conv2_2 and conv5_2)
+    """
+    def __init__(self, requires_grad=False, show_progress=False):
         super().__init__()
-        vgg_pretrained_features = models.vgg19(pretrained=True).features
+        vgg_pretrained_features = models.vgg19(pretrained=True, progress=show_progress).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
         self.slice3 = torch.nn.Sequential()
         self.slice4 = torch.nn.Sequential()
-        for x in range(4):
+        self.slice5 = torch.nn.Sequential()
+        self.slice6 = torch.nn.Sequential()
+        for x in range(1):
             self.slice1.add_module(str(x), vgg_pretrained_features[x])
-        for x in range(4, 9):
+        for x in range(1, 6):
             self.slice2.add_module(str(x), vgg_pretrained_features[x])
-        for x in range(9, 18):
+        for x in range(6, 11):
             self.slice3.add_module(str(x), vgg_pretrained_features[x])
-        for x in range(18, 25):
+        for x in range(11, 20):
             self.slice4.add_module(str(x), vgg_pretrained_features[x])
+        for x in range(20, 22):
+            self.slice5.add_module(str(x), vgg_pretrained_features[x])
+        for x in range(22, 29):
+            self.slice6.add_module(str(x), vgg_pretrained_features[x])
         if not requires_grad:
             for param in self.parameters():
                 param.requires_grad = False
 
     def forward(self, x):
-        h = self.slice1(x)
-        h_relu1_2 = h
-        h = self.slice2(h)
-        h_relu2_2 = h
-        h = self.slice3(h)
-        h_relu3_4 = h
-        h = self.slice4(h)
-        h_relu4_4 = h
-        vgg_outputs = namedtuple("VggOutputs", ['relu1_2', 'relu2_2', 'relu3_4', 'relu4_4'])
-        out = vgg_outputs(h_relu1_2, h_relu2_2, h_relu3_4, h_relu4_4)
+        x = self.slice1(x)
+        conv1_1 = x
+        x = self.slice2(x)
+        conv2_1 = x
+        x = self.slice3(x)
+        conv3_1 = x
+        x = self.slice4(x)
+        conv4_1 = x
+        x = self.slice5(x)
+        conv4_2 = x
+        x = self.slice6(x)
+        conv5_1 = x
+        vgg_outputs = namedtuple("VggOutputs", ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv4_2', 'conv5_1'])
+        out = vgg_outputs(conv1_1, conv2_1, conv3_1, conv4_1, conv4_2, conv5_1)
         return out
