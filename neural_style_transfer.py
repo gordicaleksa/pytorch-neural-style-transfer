@@ -20,7 +20,9 @@ def prepare_model(model, device):
         # we are not tuning model weights -> we are tuning optimizing_img's pixels! (that's why requires_grad=False)
         return Vgg16(requires_grad=False, show_progress=True).to(device).eval()
     elif model == 'vgg19':
-        return Vgg19(requires_grad=False, show_progress=True).to(device).eval()
+        content_layer = 5
+        style_layers = list(range(5))
+        return Vgg19(requires_grad=False, show_progress=True).to(device).eval(), content_layer, style_layers
     else:
         raise ValueError(f'{model} not supported.')
 
@@ -49,47 +51,72 @@ def neural_style_transfer(config):
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
 
-    neural_net = prepare_model(config['model'], device)
+    neural_net, content_layer, style_layers = prepare_model(config['model'], device)
     print(f'Using {config["model"]} in the optimization procedure.')
 
     content_features = neural_net(content_img)
     style_features = neural_net(style_img)
 
-    content_representation = content_features.relu3_3.squeeze(axis=0)
-    style_representation = [utils.gram_matrix(y) for y in style_features]
+    content_representation = content_features[content_layer].squeeze(axis=0)
+    norm_coeff = 1 / content_representation.numel()**2
+
+    style_representation = [utils.gram_matrix(x) for cnt, x in enumerate(style_features) if cnt in style_layers]
+    norm_weights = [1 / (y.shape[1]**2 * (y.shape[2]*y.shape[3])**2) for y in style_features]
 
     loss_fn = torch.nn.MSELoss(reduction='mean')
 
     content_weight = config['content_weight']
     style_weight = config['style_weight']
     tv_weight = config['tv_weight']
+    # magic numbers in general are a big no no - as this is usually not a hyperparam we make an exception to the rule
+    num_of_iterations = {
+        "lbfgs": 500,
+        "Adam": 500
+    }
 
     def closure():
         global cnt
         optimizer.zero_grad()
 
+        #
+        # main logic
+        #
         current_features = neural_net(optimizing_img)
-        content_loss = loss_fn(content_representation, current_features.relu3_3[0])
-        # todo: first normalize and then do the MSE - that's how it was done for Gram
+
+        content_representation_prediction = current_features[content_layer].squeeze(axis=0)
+        content_loss = norm_coeff*torch.nn.MSELoss(reduction='sum')(content_representation, content_representation_prediction)
 
         style_loss = 0.0
-        style_representation_prediction = [utils.gram_matrix(y) for y in current_features]
-        for gram_gt, gram_hat in zip(style_representation, style_representation_prediction):
-            cur_loss = loss_fn(gram_gt[0], gram_hat[0])
-            style_loss += (1 / len(style_representation)) * cur_loss
-            # print('loss', loss_fn(gram_gt[0], gram_hat[0]))
+        w_blend_style = (1 / len(style_representation))
+        style_representation_prediction = [utils.gram_matrix(x) for cnt, x in enumerate(current_features) if cnt in style_layers]
+        for gram_gt, gram_hat, norm_weight in zip(style_representation, style_representation_prediction, norm_weights):
+            cur_loss = norm_weight * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
+            style_loss += w_blend_style * cur_loss
+            # print('loss term', cur_loss)
 
         total_loss = content_weight*content_loss + style_weight*style_loss + tv_weight*utils.total_variation(optimizing_img)
 
         total_loss.backward()
+        #
+        # end of main logic
+        #
         with torch.no_grad():
-            print(f'L-BFGS | iteration: {cnt:03}, current loss={total_loss.item()}')
-            utils.save_display(optimizing_img, dump_path, cnt, config['image_format'], should_save=True, should_display=False)
+            print(f'L-BFGS | iteration: {cnt:03}, '
+                  f'current loss={total_loss.item():12.4f},'
+                  f' content_loss={content_weight*content_loss.item():12.4f}'
+                  f' style loss={style_weight*style_loss.item():12.4f}')
+            utils.save_display(
+                optimizing_img,
+                dump_path,
+                config['image_format'],
+                cnt,
+                num_of_iterations['lbfgs'],
+                saving_freq=config['saving_freq'],
+                should_display=False)
             cnt += 1
         return total_loss
 
-    # magic numbers in general are a big no no - as this is usually not a hyperparam we make an exception to the rule
-    optimizer = LBFGS((optimizing_img,), max_iter=500)
+    optimizer = LBFGS((optimizing_img,), max_iter=num_of_iterations['lbfgs'])
     optimizer.step(closure)
 
     return dump_path
@@ -110,14 +137,15 @@ if __name__ == "__main__":
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='mosaic.jpg')
-    parser.add_argument("--width", type=int, help="width of content and style images", default=256)
-    parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e9)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=5e8)
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='candy.jpg')
+    parser.add_argument("--width", type=int, help="width of content and style images", default=512)
+    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=10)
+    parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e4)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=1e4)
     parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e-3)
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='random')
-    parser.add_argument("--model", type=str, choices=['vgg16'], default='vgg16')  # only supporting vgg16 for now
+    parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     args = parser.parse_args()
 
     optimization_config = dict()

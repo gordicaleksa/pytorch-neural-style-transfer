@@ -195,6 +195,6 @@ class Vgg19(torch.nn.Module):
         conv4_2 = x
         x = self.slice6(x)
         conv5_1 = x
-        vgg_outputs = namedtuple("VggOutputs", ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv4_2', 'conv5_1'])
-        out = vgg_outputs(conv1_1, conv2_1, conv3_1, conv4_1, conv4_2, conv5_1)
+        vgg_outputs = namedtuple("VggOutputs", ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1', 'conv4_2'])
+        out = vgg_outputs(conv1_1, conv2_1, conv3_1, conv4_1, conv5_1, conv4_2)
         return out
