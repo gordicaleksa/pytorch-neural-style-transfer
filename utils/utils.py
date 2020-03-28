@@ -11,7 +11,7 @@ from models.definitions.vgg_nets import Vgg16, Vgg19
 
 def load_image(filename, width=None, size=None, scale=None, return_pil=False):
     img = Image.open(filename)
-    if width is not None:
+    if width is not None and width != -1:
         ratio = width / img.size[0]  # PIL size returns (w, h)
         height = int(img.size[1] * ratio)
         img = img.resize((width, height), Image.ANTIALIAS)
@@ -58,7 +58,7 @@ def save_image(img, img_path):
     img.save(img_path)
 
 
-def save_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
+def save_and_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
     out_img = optimizing_img.squeeze(axis=0).to('cpu').numpy()
     out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, ch
     out_img -= np.min(out_img)

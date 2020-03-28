@@ -1,17 +1,12 @@
 import utils.utils as utils
-from models.definitions.vgg_nets import Vgg16, Vgg19
 
 import os
 import argparse
 import torch
 from torch.autograd import Variable
 from torch.optim import Adam, LBFGS
-from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-cnt = 0
 
 
 def make_tuning_step(model, optimizer, should_reconstruct_content, content_feature_maps_index, style_feature_maps_indices):
@@ -58,13 +53,13 @@ def reconstruct_image_from_representation(config):
 
     _, img = utils.prepare_img(img_path, config['width'], device)
 
-    optimizing_img = Variable(torch.randn(img.shape, device=device)*0.1, requires_grad=True)
+    optimizing_img = Variable(torch.randn(img.shape, device=device)*0.1, requires_grad=True)  # standard deviation = 0.1
 
-    # indices describe relevant feature maps (from say conv4_1, relu1_1, etc.)
+    # indices pick relevant feature maps (say conv4_1, relu1_1, etc.)
     neural_net, content_feature_maps_index_name, style_feature_maps_indices_names = utils.prepare_model(config['model'], device)
 
     loss_fn = torch.nn.MSELoss(reduction='mean')
-    # don't want to expose everything that's not crucial so it's hardcoded here
+    # don't want to expose everything that's not crucial so some things are hardcoded
     num_of_iterations = {'adam': 6000, 'lbfgs': 500}
     save_frequency = {'adam': 100, 'lbfgs': 10}
 
@@ -110,10 +105,13 @@ def reconstruct_image_from_representation(config):
             loss, _ = tuning_step(optimizing_img, target_content_representation if should_reconstruct_content else target_style_representation)
             with torch.no_grad():
                 print(f'Iteration: {it}, current {"content" if should_reconstruct_content else "style"} loss={loss:10.8f}')
-                utils.save_maybe_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
+                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
+        cnt = 0
+
+        # function required by L-BFGS optimizer
         def closure():
-            global cnt
+            nonlocal cnt
             optimizer.zero_grad()
             loss = 0.0
             if should_reconstruct_content:
@@ -125,8 +123,8 @@ def reconstruct_image_from_representation(config):
                     loss += (1 / len(target_style_representation)) * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
             loss.backward()
             with torch.no_grad():
-                print(f'Current {"content" if should_reconstruct_content else "style"} loss={loss.item()}')
-                utils.save_maybe_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
+                print(f'Iteration: {cnt}, current {"content" if should_reconstruct_content else "style"} loss={loss.item()}')
+                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
                 cnt += 1
             return loss
 
@@ -136,7 +134,7 @@ def reconstruct_image_from_representation(config):
 
 if __name__ == "__main__":
     #
-    # fixed args - don't change these unless you have a good reason
+    # fixed args - don't change these unless you have a good reason (default img locations and img dump format)
     #
     default_resource_dir = os.path.join(os.path.dirname(__file__), 'data')
     content_images_dir = os.path.join(default_resource_dir, 'content-images')
@@ -148,12 +146,12 @@ if __name__ == "__main__":
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image", default=False)
+    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=True)
     parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
     parser.add_argument("--style_img_name", type=str, help="style image name", default='starry_night.jpg')
-    parser.add_argument("--width", type=int, help="width of content and style images", default=224)
+    parser.add_argument("--width", type=int, help="width of content and style images (-1 keep original)", default=512)
 
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg16')
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')

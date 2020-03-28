@@ -166,9 +166,9 @@ class Vgg19(torch.nn.Module):
         vgg_pretrained_features = models.vgg19(pretrained=True, progress=show_progress).features
         self.layer_names = ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv4_2', 'conv5_1']
         self.content_feature_maps_index = 4  # conv4_2
-        # all layers used for style representation except the one use for content representation
+        # all layers used for style representation except conv4_2
         self.style_feature_maps_indices = list(range(len(self.layer_names)))
-        self.style_feature_maps_indices.remove(self.content_feature_maps_index)
+        self.style_feature_maps_indices.remove(4)  # conv4_2
 
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()

@@ -92,7 +92,7 @@ def neural_style_transfer(config):
                   f'current loss={total_loss.item():12.4f},'
                   f' content_loss={content_weight*content_loss.item():12.4f}'
                   f' style loss={style_weight*style_loss.item():12.4f}')
-            utils.save_maybe_display(
+            utils.save_and_maybe_display(
                 optimizing_img,
                 dump_path,
                 config['img_format'],
