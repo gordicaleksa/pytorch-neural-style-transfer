@@ -32,11 +32,8 @@ def prepare_img(img_path, new_width, device):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    img_prenormalized = transform_prenormalized(img).to(device)
-    img_prenormalized = img_prenormalized.unsqueeze(0)
-
-    img = transform(img).to(device)
-    img = img.unsqueeze(0)
+    img_prenormalized = transform_prenormalized(img).to(device).unsqueeze(0)
+    img = transform(img).to(device).unsqueeze(0)
 
     return img_prenormalized, img
 

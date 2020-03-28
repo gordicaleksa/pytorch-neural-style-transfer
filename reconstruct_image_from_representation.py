@@ -1,3 +1,20 @@
+import utils.utils as utils
+from models.definitions.vgg_nets import Vgg16, Vgg19
+
+import os
+import argparse
+from torchvision import transforms
+import torch
+from torch.autograd import Variable
+from torch.optim import Adam, LBFGS
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+cnt = 0
+
+
 def make_train_step(model, loss_fn, optimizer, should_reconstruct_content):
     # Builds function that performs a step in the train loop
     def train_step(x, y):
@@ -32,30 +49,19 @@ def make_train_step(model, loss_fn, optimizer, should_reconstruct_content):
     return train_step
 
 
-def reconstruct_image_from_representation(args, should_reconstruct_content=True, should_visualize_representation=True):
-    default_resource_dir = os.path.join(os.path.dirname(__file__), 'data')
-    content_images_dir = os.path.join(default_resource_dir, 'content-images')
-    style_images_dir = os.path.join(default_resource_dir, 'style-images')
-    content_img_path = os.path.join(content_images_dir, args.content_img_name)
-    style_img_path = os.path.join(style_images_dir, args.style_img_name)
+def reconstruct_image_from_representation(config):
+    should_reconstruct_content = config['should_reconstruct_content']
+    should_visualize_representation = config['should_visualize_representation']
+    content_img_path = os.path.join(content_images_dir, config['content_img_name'])
+    style_img_path = os.path.join(style_images_dir, config['style_img_name'])
 
     img_path = content_img_path if should_reconstruct_content else style_img_path
-    img = utils.load_image(img_path, return_pil=True)
-    print('Image to reconstruct shape=', np.array(img).shape)
-
-    transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(256),
-        transforms.ToTensor(),
-    ])
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    width = 256
+    _, img = utils.prepare_img(img_path, width, device)
 
-    img = transform(img).to(device)
-    img = img.unsqueeze(0)
-    img = utils.normalize_batch(img, should_divide=False)
-
-    optimizing_img = Variable(torch.randn(1, 3, 256, 256, device=device, requires_grad=True)*0.1, requires_grad=True)
+    optimizing_img = Variable(torch.randn(img.shape, device=device)*0.1, requires_grad=True)
 
     vgg = Vgg16(requires_grad=False).to(device).eval()
 
@@ -102,7 +108,7 @@ def reconstruct_image_from_representation(args, should_reconstruct_content=True,
     loss_fn = torch.nn.MSELoss(reduction='mean')
     optimizer_type = 'lbfgs'
     num_of_iterations = {'adam': 6000, 'lbfgs': 500}
-    save_frequency = {'adam': 1, 'lbfgs': 1}
+    save_frequency = {'adam': 10, 'lbfgs': 10}
 
     dump_path = os.path.join(
         default_resource_dir,
@@ -114,10 +120,9 @@ def reconstruct_image_from_representation(args, should_reconstruct_content=True,
         train_step = make_train_step(vgg, loss_fn, optimizer, should_reconstruct_content)
         for it in range(num_of_iterations[optimizer_type]):
             loss, _ = train_step(optimizing_img, content_representation if should_reconstruct_content else style_representation)
-            if it % save_frequency[optimizer_type] == 0:
-                with torch.no_grad():
-                    print('current loss=', loss)
-                    save_display(optimizing_img, dump_path, int(it/save_frequency[optimizer_type]), should_save=True, should_display=False)
+            with torch.no_grad():
+                print('current loss=', loss)
+                utils.save_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[optimizer_type], saving_freq=save_frequency[optimizer_type], should_display=False)
     elif optimizer_type == 'lbfgs':
         def closure():
             global cnt
@@ -135,9 +140,41 @@ def reconstruct_image_from_representation(args, should_reconstruct_content=True,
             loss.backward()
             with torch.no_grad():
                 print('current loss=', loss.item())
-                save_display(optimizing_img, dump_path, cnt, should_save=True, should_display=False)
+                utils.save_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations[optimizer_type], saving_freq=save_frequency[optimizer_type], should_display=False)
                 cnt += 1
             return loss
 
         optimizer = torch.optim.LBFGS((optimizing_img,), max_iter=500)
         optimizer.step(closure)
+
+
+if __name__ == "__main__":
+    #
+    # fixed args - don't change these unless you have a good reason
+    #
+    default_resource_dir = os.path.join(os.path.dirname(__file__), 'data')
+    content_images_dir = os.path.join(default_resource_dir, 'content-images')
+    style_images_dir = os.path.join(default_resource_dir, 'style-images')
+    output_img_dir = os.path.join(default_resource_dir, 'output-images')
+    img_format = (4, '.png')  # saves images in the format: %04d.png
+
+    #
+    # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
+    #
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='candy.jpg')
+    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image", default=True)
+    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
+    args = parser.parse_args()
+
+    optimization_config = dict()
+    for arg in vars(args):
+        optimization_config[arg] = getattr(args, arg)
+    optimization_config['content_images_dir'] = content_images_dir
+    optimization_config['style_images_dir'] = style_images_dir
+    optimization_config['output_img_dir'] = output_img_dir
+    optimization_config['img_format'] = img_format
+
+    # reconstruct style or content image purely from their representation
+    reconstruct_image_from_representation(optimization_config)

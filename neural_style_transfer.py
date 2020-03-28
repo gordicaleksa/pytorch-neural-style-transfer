@@ -108,7 +108,7 @@ def neural_style_transfer(config):
             utils.save_display(
                 optimizing_img,
                 dump_path,
-                config['image_format'],
+                config['img_format'],
                 cnt,
                 num_of_iterations['lbfgs'],
                 saving_freq=config['saving_freq'],
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     optimization_config['content_images_dir'] = content_images_dir
     optimization_config['style_images_dir'] = style_images_dir
     optimization_config['output_img_dir'] = output_img_dir
-    optimization_config['image_format'] = img_format
+    optimization_config['img_format'] = img_format
 
     # original NST (Neural Style Transfer) algorithm (Gatys et al.)
     results_path = neural_style_transfer(optimization_config)
