@@ -1,6 +1,6 @@
 import utils.utils as utils
 from utils.video_utils import create_video_from_intermediate_results
-from models.definitions.vgg_nets import Vgg16, Vgg19
+# from models.definitions.vgg_nets import Vgg16, Vgg19
 
 import torch
 from torch.optim import Adam, LBFGS
@@ -14,22 +14,9 @@ import argparse
 cnt = 0
 
 
-# initially it takes some time for PyTorch to download the models
-def prepare_model(model, device):
-    if model == 'vgg16':
-        # we are not tuning model weights -> we are tuning optimizing_img's pixels! (that's why requires_grad=False)
-        return Vgg16(requires_grad=False, show_progress=True).to(device).eval()
-    elif model == 'vgg19':
-        content_layer = 5
-        style_layers = list(range(5))
-        return Vgg19(requires_grad=False, show_progress=True).to(device).eval(), content_layer, style_layers
-    else:
-        raise ValueError(f'{model} not supported.')
-
-
 def neural_style_transfer(config):
-    content_img_path = os.path.join(content_images_dir, config['content_img_name'])
-    style_img_path = os.path.join(style_images_dir, config['style_img_name'])
+    content_img_path = os.path.join(config['content_images_dir'], config['content_img_name'])
+    style_img_path = os.path.join(config['style_images_dir'], config['style_img_name'])
 
     out_dir_name = 'combined_' + os.path.split(content_img_path)[1].split('.')[0] + '_' + os.path.split(style_img_path)[1].split('.')[0]
     dump_path = os.path.join(config['output_img_dir'], out_dir_name)
@@ -51,17 +38,17 @@ def neural_style_transfer(config):
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
 
-    neural_net, content_layer, style_layers = prepare_model(config['model'], device)
+    neural_net, content_layer_index, style_layers_indices = utils.prepare_model(config['model'], device)
     print(f'Using {config["model"]} in the optimization procedure.')
 
-    content_features = neural_net(content_img)
-    style_features = neural_net(style_img)
+    content_img_set_of_feature_maps = neural_net(content_img)
+    style_img_set_of_feature_maps = neural_net(style_img)
 
-    content_representation = content_features[content_layer].squeeze(axis=0)
+    content_representation = content_img_set_of_feature_maps[content_layer_index].squeeze(axis=0)
     norm_coeff = 1 / content_representation.numel()**2
 
-    style_representation = [utils.gram_matrix(x) for cnt, x in enumerate(style_features) if cnt in style_layers]
-    norm_weights = [1 / (y.shape[1]**2 * (y.shape[2]*y.shape[3])**2) for y in style_features]
+    style_representation = [utils.gram_matrix(x) for cnt, x in enumerate(style_img_set_of_feature_maps) if cnt in style_layers_indices]
+    norm_weights = [1 / (y.shape[1]**2 * (y.shape[2]*y.shape[3])**2) for y in style_img_set_of_feature_maps]
 
     loss_fn = torch.nn.MSELoss(reduction='mean')
 
@@ -83,12 +70,12 @@ def neural_style_transfer(config):
         #
         current_features = neural_net(optimizing_img)
 
-        content_representation_prediction = current_features[content_layer].squeeze(axis=0)
+        content_representation_prediction = current_features[content_layer_index].squeeze(axis=0)
         content_loss = norm_coeff*torch.nn.MSELoss(reduction='sum')(content_representation, content_representation_prediction)
 
         style_loss = 0.0
         w_blend_style = (1 / len(style_representation))
-        style_representation_prediction = [utils.gram_matrix(x) for cnt, x in enumerate(current_features) if cnt in style_layers]
+        style_representation_prediction = [utils.gram_matrix(x) for cnt, x in enumerate(current_features) if cnt in style_layers_indices]
         for gram_gt, gram_hat, norm_weight in zip(style_representation, style_representation_prediction, norm_weights):
             cur_loss = norm_weight * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
             style_loss += w_blend_style * cur_loss

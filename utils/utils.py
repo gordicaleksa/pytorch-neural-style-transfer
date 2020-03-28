@@ -6,6 +6,9 @@ import os
 import matplotlib.pyplot as plt
 
 
+from models.definitions.vgg_nets import Vgg16, Vgg19
+
+
 def load_image(filename, width=None, size=None, scale=None, return_pil=False):
     img = Image.open(filename)
     if width is not None:
@@ -38,6 +41,23 @@ def prepare_img(img_path, new_width, device):
     return img_prenormalized, img
 
 
+def get_uint8_range(x):
+    if isinstance(x, np.ndarray):
+        x -= np.min(x)
+        x /= np.max(x)
+        x *= 255
+        return x
+    else:
+        raise ValueError(f'Expected numpy array got {type(x)}')
+
+
+def save_image(img, img_path):
+    img = Image.fromarray(img)
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+    img.save(img_path)
+
+
 def save_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
     out_img = optimizing_img.squeeze(axis=0).to('cpu').numpy()
     out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, ch
@@ -51,6 +71,21 @@ def save_display(optimizing_img, dump_path, img_format, img_id, num_of_iteration
     if should_display:
         plt.imshow(out_img)
         plt.show()
+
+
+# initially it takes some time for PyTorch to download the models
+def prepare_model(model, device):
+    if model == 'vgg16':
+        content_layer_index = 1
+        style_layers_indices = list(range(4))
+        # we are not tuning model weights -> we are tuning optimizing_img's pixels! (that's why requires_grad=False)
+        return Vgg16(requires_grad=False, show_progress=True).to(device).eval(), content_layer_index, style_layers_indices
+    elif model == 'vgg19':
+        content_layer_index = 5
+        style_layers_indices = list(range(5))
+        return Vgg19(requires_grad=False, show_progress=True).to(device).eval(), content_layer_index, style_layers_indices
+    else:
+        raise ValueError(f'{model} not supported.')
 
 
 def gram_matrix(x):
