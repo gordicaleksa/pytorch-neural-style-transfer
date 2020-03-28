@@ -58,7 +58,7 @@ def save_image(img, img_path):
     img.save(img_path)
 
 
-def save_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
+def save_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
     out_img = optimizing_img.squeeze(axis=0).to('cpu').numpy()
     out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, ch
     out_img -= np.min(out_img)

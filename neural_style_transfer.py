@@ -75,8 +75,8 @@ def neural_style_transfer(config):
 
         style_loss = 0.0
         w_blend_style = (1 / len(style_representation))
-        style_representation_prediction = [utils.gram_matrix(x) for cnt, x in enumerate(current_features) if cnt in style_layers_indices]
-        for gram_gt, gram_hat, norm_weight in zip(style_representation, style_representation_prediction, norm_weights):
+        current_style_representation = [utils.gram_matrix(x) for cnt, x in enumerate(current_features) if cnt in style_layers_indices]
+        for gram_gt, gram_hat, norm_weight in zip(style_representation, current_style_representation, norm_weights):
             cur_loss = norm_weight * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
             style_loss += w_blend_style * cur_loss
             # print('loss term', cur_loss)
@@ -92,7 +92,7 @@ def neural_style_transfer(config):
                   f'current loss={total_loss.item():12.4f},'
                   f' content_loss={content_weight*content_loss.item():12.4f}'
                   f' style loss={style_weight*style_loss.item():12.4f}')
-            utils.save_display(
+            utils.save_maybe_display(
                 optimizing_img,
                 dump_path,
                 config['img_format'],
