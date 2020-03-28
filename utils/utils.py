@@ -75,29 +75,30 @@ def save_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_ite
 
 # initially it takes some time for PyTorch to download the models into local cache
 def prepare_model(model, device):
+    # we are not tuning model weights -> we are only tuning optimizing_img's pixels! (that's why requires_grad=False)
     if model == 'vgg16':
-        # we are not tuning model weights -> we are only tuning optimizing_img's pixels! (that's why requires_grad=False)
         model = Vgg16(requires_grad=False, show_progress=True)
-        content_feature_maps_index = model.content_feature_maps_index
-        style_feature_maps_indices = model.style_feature_maps_indices
-        layer_names = model.layer_names
-
-        content_fms_index_name = (content_feature_maps_index, layer_names[content_feature_maps_index])
-        style_fms_indices_names = (style_feature_maps_indices, layer_names)
-        return model.to(device).eval(), content_fms_index_name, style_fms_indices_names
     elif model == 'vgg19':
-        content_layer_index = 5
-        style_layers_indices = list(range(5))
-        return Vgg19(requires_grad=False, show_progress=True).to(device).eval(), content_layer_index, style_layers_indices
+        model = Vgg19(requires_grad=False, show_progress=True)
     else:
         raise ValueError(f'{model} not supported.')
 
+    content_feature_maps_index = model.content_feature_maps_index
+    style_feature_maps_indices = model.style_feature_maps_indices
+    layer_names = model.layer_names
 
-def gram_matrix(x):
+    content_fms_index_name = (content_feature_maps_index, layer_names[content_feature_maps_index])
+    style_fms_indices_names = (style_feature_maps_indices, layer_names)
+    return model.to(device).eval(), content_fms_index_name, style_fms_indices_names
+
+
+def gram_matrix(x, should_normalize=True):
     (b, ch, h, w) = x.size()
     features = x.view(b, ch, w * h)
     features_t = features.transpose(1, 2)
-    gram = features.bmm(features_t) # / (ch * h * w)
+    gram = features.bmm(features_t)
+    if should_normalize:
+        gram /= ch * h * w
     return gram
 
 

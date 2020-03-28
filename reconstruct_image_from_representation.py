@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 cnt = 0
 
 
-def make_tuning_step(model, loss_fn, optimizer, should_reconstruct_content, content_feature_maps_index, style_feature_maps_indices):
+def make_tuning_step(model, optimizer, should_reconstruct_content, content_feature_maps_index, style_feature_maps_indices):
     # Builds function that performs a step in the tuning loop
     def tuning_step(optimizing_img, target_representation):
         # Finds the current representation
@@ -27,13 +27,10 @@ def make_tuning_step(model, loss_fn, optimizer, should_reconstruct_content, cont
         # Computes the loss between current and target representations
         loss = 0.0
         if should_reconstruct_content:
-            loss = loss_fn(target_representation, current_representation)
-            # todo: remove these hardcoded or add comment
-            loss *= 1e5
+            loss = torch.nn.MSELoss(reduction='mean')(target_representation, current_representation)
         else:
             for gram_gt, gram_hat in zip(target_representation, current_representation):
-                loss += (1 / len(target_representation)) * loss_fn(gram_gt[0], gram_hat[0])
-            loss *= 1e10
+                loss += (1 / len(target_representation)) * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
 
         # Computes gradients
         loss.backward()
@@ -69,7 +66,7 @@ def reconstruct_image_from_representation(config):
     loss_fn = torch.nn.MSELoss(reduction='mean')
     # don't want to expose everything that's not crucial so it's hardcoded here
     num_of_iterations = {'adam': 6000, 'lbfgs': 500}
-    save_frequency = {'adam': 10, 'lbfgs': 10}
+    save_frequency = {'adam': 100, 'lbfgs': 10}
 
     set_of_feature_maps = neural_net(img)
 
@@ -108,11 +105,11 @@ def reconstruct_image_from_representation(config):
     #
     if config['optimizer'] == 'adam':
         optimizer = Adam((optimizing_img,))
-        tuning_step = make_tuning_step(neural_net, loss_fn, optimizer, should_reconstruct_content, content_feature_maps_index_name[0], style_feature_maps_indices_names[0])
+        tuning_step = make_tuning_step(neural_net, optimizer, should_reconstruct_content, content_feature_maps_index_name[0], style_feature_maps_indices_names[0])
         for it in range(num_of_iterations[config['optimizer']]):
             loss, _ = tuning_step(optimizing_img, target_content_representation if should_reconstruct_content else target_style_representation)
             with torch.no_grad():
-                print(f'Current {"content" if should_reconstruct_content else "style"} loss={loss}')
+                print(f'Iteration: {it}, current {"content" if should_reconstruct_content else "style"} loss={loss:10.8f}')
                 utils.save_maybe_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
         def closure():
@@ -125,10 +122,7 @@ def reconstruct_image_from_representation(config):
                 current_set_of_feature_maps = neural_net(optimizing_img)
                 current_style_representation = [utils.gram_matrix(fmaps) for i, fmaps in enumerate(current_set_of_feature_maps) if i in style_feature_maps_indices_names[0]]
                 for gram_gt, gram_hat in zip(target_style_representation, current_style_representation):
-                    loss += (1 / len(target_style_representation)) * loss_fn(gram_gt[0], gram_hat[0])
-                    print('loss', loss_fn(gram_gt[0], gram_hat[0]))
-                # todo: remove these hardcoded
-                loss *= 1e4
+                    loss += (1 / len(target_style_representation)) * torch.nn.MSELoss(reduction='sum')(gram_gt[0], gram_hat[0])
             loss.backward()
             with torch.no_grad():
                 print(f'Current {"content" if should_reconstruct_content else "style"} loss={loss.item()}')
@@ -155,14 +149,14 @@ if __name__ == "__main__":
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image", default=False)
-    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
+    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='candy.jpg')
-    parser.add_argument("--width", type=int, help="width of content and style images", default=256)
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='starry_night.jpg')
+    parser.add_argument("--width", type=int, help="width of content and style images", default=224)
 
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg16')
-    parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='adam')
+    parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     args = parser.parse_args()
 
     optimization_config = dict()
