@@ -14,6 +14,10 @@ class Vgg16(torch.nn.Module):
     def __init__(self, requires_grad=False, show_progress=False):
         super().__init__()
         vgg_pretrained_features = models.vgg16(pretrained=True, progress=show_progress).features
+        self.layer_names = ['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3']
+        self.content_feature_maps_index = 1  # relu2_2
+        self.style_feature_maps_indices = list(range(len(self.layer_names)))  # all layers used for style representation
+
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
         self.slice3 = torch.nn.Sequential()
@@ -39,7 +43,7 @@ class Vgg16(torch.nn.Module):
         relu3_3 = x
         x = self.slice4(x)
         relu4_3 = x
-        vgg_outputs = namedtuple("VggOutputs", ['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3'])
+        vgg_outputs = namedtuple("VggOutputs", self.layer_names)
         out = vgg_outputs(relu1_2, relu2_2, relu3_3, relu4_3)
         return out
 

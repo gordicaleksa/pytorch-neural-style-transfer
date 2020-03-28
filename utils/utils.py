@@ -73,13 +73,18 @@ def save_display(optimizing_img, dump_path, img_format, img_id, num_of_iteration
         plt.show()
 
 
-# initially it takes some time for PyTorch to download the models
+# initially it takes some time for PyTorch to download the models into local cache
 def prepare_model(model, device):
     if model == 'vgg16':
-        content_layer_index = 1
-        style_layers_indices = list(range(4))
-        # we are not tuning model weights -> we are tuning optimizing_img's pixels! (that's why requires_grad=False)
-        return Vgg16(requires_grad=False, show_progress=True).to(device).eval(), content_layer_index, style_layers_indices
+        # we are not tuning model weights -> we are only tuning optimizing_img's pixels! (that's why requires_grad=False)
+        model = Vgg16(requires_grad=False, show_progress=True)
+        content_feature_maps_index = model.content_feature_maps_index
+        style_feature_maps_indices = model.style_feature_maps_indices
+        layer_names = model.layer_names
+
+        content_fms_index_name = (content_feature_maps_index, layer_names[content_feature_maps_index])
+        style_fms_indices_names = (style_feature_maps_indices, layer_names)
+        return model.to(device).eval(), content_fms_index_name, style_fms_indices_names
     elif model == 'vgg19':
         content_layer_index = 5
         style_layers_indices = list(range(5))

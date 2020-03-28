@@ -51,7 +51,7 @@ def make_train_step(model, loss_fn, optimizer, should_reconstruct_content):
 def reconstruct_image_from_representation(config):
     should_reconstruct_content = config['should_reconstruct_content']
     should_visualize_representation = config['should_visualize_representation']
-    dump_path = os.path.join(config['output_img_dir'], 'c' if should_reconstruct_content else 's' + '_reconstruction_' + config['optimizer'])
+    dump_path = os.path.join(config['output_img_dir'], ('c' if should_reconstruct_content else 's') + '_reconstruction_' + config['optimizer'])
     os.makedirs(dump_path, exist_ok=True)
 
     content_img_path = os.path.join(config['content_images_dir'], config['content_img_name'])
@@ -64,7 +64,8 @@ def reconstruct_image_from_representation(config):
 
     optimizing_img = Variable(torch.randn(img.shape, device=device)*0.1, requires_grad=True)
 
-    neural_net, content_feature_maps_index, style_feature_maps_indices = utils.prepare_model(config['model'], device)
+    # indices describe relevant feature maps (from say conv4_1, relu1_1, etc.)
+    neural_net, content_feature_maps_index_name, style_feature_maps_indices_names = utils.prepare_model(config['model'], device)
 
     loss_fn = torch.nn.MSELoss(reduction='mean')
     num_of_iterations = {'adam': 6000, 'lbfgs': 500}
@@ -76,7 +77,7 @@ def reconstruct_image_from_representation(config):
     # Visualize feature maps and Gram matrices (depending whether you're reconstructing content or style img)
     #
     if should_reconstruct_content:
-        content_representation = set_of_feature_maps[content_feature_maps_index].squeeze(axis=0)
+        content_representation = set_of_feature_maps[content_feature_maps_index_name[0]].squeeze(axis=0)
         if should_visualize_representation:
             num_of_feature_maps = content_representation.size()[0]
             print(f'Number of feature maps: {num_of_feature_maps}')
@@ -84,23 +85,23 @@ def reconstruct_image_from_representation(config):
                 feature_map = content_representation[i].to('cpu').numpy()
                 feature_map = np.uint8(utils.get_uint8_range(feature_map))
                 plt.imshow(feature_map)
-                plt.title(f'Feature map from {config["content_img_name"]} image.')
+                plt.title(f'Feature map {i+1}/{num_of_feature_maps} from layer {content_feature_maps_index_name[1]} (model={config["model"]}) for {config["content_img_name"]} image.')
                 plt.show()
                 filename = 'fm_' + str(i).zfill(config['img_format'][0]) + config['img_format'][1]
                 utils.save_image(feature_map, os.path.join(dump_path, filename))
     else:
-        style_representation = [utils.gram_matrix(fmaps) for i, fmaps in enumerate(set_of_feature_maps) if i in style_feature_maps_indices]
+        style_representation = [utils.gram_matrix(fmaps) for i, fmaps in enumerate(set_of_feature_maps) if i in style_feature_maps_indices_names[0]]
         if should_visualize_representation:
-            ar_len = len(style_representation)
-            print(f'Number of Gram matrices: {ar_len}')
-            for i in range(ar_len):
-                Gram_matrix = style_representation[i][0].to('cpu').numpy()
+            num_of_gram_matrices = len(style_representation)
+            print(f'Number of Gram matrices: {num_of_gram_matrices}')
+            for i in range(num_of_gram_matrices):
+                Gram_matrix = style_representation[i].squeeze(axis=0).to('cpu').numpy()
                 Gram_matrix = np.uint8(utils.get_uint8_range(Gram_matrix))
                 plt.imshow(Gram_matrix)
-                plt.title(f'Gram matrix from {config["style_img_name"]}, shape={Gram_matrix.shape}')
+                plt.title(f'Gram matrix from layer {style_feature_maps_indices_names[1][i]} (model={config["model"]}) for {config["style_img_name"]} image.')
                 plt.show()
                 filename = 'gram_' + str(i).zfill(config['img_format'][0]) + config['img_format'][1]
-                utils.save_image(Gram_matrix, filename)
+                utils.save_image(Gram_matrix, os.path.join(dump_path, filename))
 
     #
     # Start of optimization procedure
@@ -152,7 +153,7 @@ if __name__ == "__main__":
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image", default=True)
+    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image", default=False)
     parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
