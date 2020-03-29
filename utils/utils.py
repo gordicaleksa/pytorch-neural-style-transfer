@@ -60,16 +60,20 @@ def save_image(img, img_path):
 
 def save_and_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
     out_img = optimizing_img.squeeze(axis=0).to('cpu').numpy()
-    out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, ch
-    out_img -= np.min(out_img)
-    out_img /= np.max(out_img)  # bring image into [0.0, 1.0] range
-    out_img = np.uint8(out_img * 255)
+    out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, chr
+
     # for saving_freq == -1 save only the final result (otherwise save with frequency saving_freq and save the last pic)
     if img_id == num_of_iterations-1 or (saving_freq > 0 and img_id % saving_freq == 0):
-        out_img = Image.fromarray(out_img)
+        # print(np.min(out_img), np.mean(out_img), np.max(out_img))
+        # _ = plt.hist(out_img[:, :, 0], bins='auto')  # arguments are passed to np.histogram
+        # plt.title("Histogram with 'auto' bins")
+        # plt.show()
+        np.save(os.path.join(dump_path, 'out.npy'), out_img)
+
+        out_img = Image.fromarray(np.uint8(get_uint8_range(out_img)))
         out_img.save(os.path.join(dump_path, str(img_id).zfill(img_format[0]) + img_format[1]))
     if should_display:
-        plt.imshow(out_img)
+        plt.imshow(np.uint8(get_uint8_range(out_img)))
         plt.show()
 
 

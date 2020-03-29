@@ -9,9 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def make_tuning_step(model, optimizer, should_reconstruct_content, content_feature_maps_index, style_feature_maps_indices):
+def make_tuning_step(model, optimizer, target_representation, should_reconstruct_content, content_feature_maps_index, style_feature_maps_indices):
     # Builds function that performs a step in the tuning loop
-    def tuning_step(optimizing_img, target_representation):
+    def tuning_step(optimizing_img):
         # Finds the current representation
         set_of_feature_maps = model(optimizing_img)
         if should_reconstruct_content:
@@ -100,16 +100,17 @@ def reconstruct_image_from_representation(config):
     #
     if config['optimizer'] == 'adam':
         optimizer = Adam((optimizing_img,))
-        tuning_step = make_tuning_step(neural_net, optimizer, should_reconstruct_content, content_feature_maps_index_name[0], style_feature_maps_indices_names[0])
+        target_representation = target_content_representation if should_reconstruct_content else target_style_representation
+        tuning_step = make_tuning_step(neural_net, optimizer, target_representation, should_reconstruct_content, content_feature_maps_index_name[0], style_feature_maps_indices_names[0])
         for it in range(num_of_iterations[config['optimizer']]):
-            loss, _ = tuning_step(optimizing_img, target_content_representation if should_reconstruct_content else target_style_representation)
+            loss, _ = tuning_step(optimizing_img)
             with torch.no_grad():
                 print(f'Iteration: {it}, current {"content" if should_reconstruct_content else "style"} loss={loss:10.8f}')
                 utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
         cnt = 0
 
-        # function required by L-BFGS optimizer
+        # closure is a function required by L-BFGS optimizer
         def closure():
             nonlocal cnt
             optimizer.zero_grad()
