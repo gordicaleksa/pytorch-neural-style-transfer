@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import argparse
+from playsound import playsound
 
 
 def build_loss(neural_net, optimizing_img, target_representations, content_feature_maps_index, style_feature_maps_indices, config):
@@ -61,8 +62,8 @@ def neural_style_transfer(config):
     style_img_prenorm, style_img = utils.prepare_img(style_img_path, config['width'], device)
 
     if config['init_method'] == 'random':
-        # hacky way to set standard deviation to 0.1 <- no specific reason for 0.1, cnt just works fine
-        init_img = torch.randn(content_img.shape, device=device) * 0.1
+        white_noise_img = np.random.uniform(-20., 20., content_img.shape).astype(np.float32)
+        init_img = torch.from_numpy(white_noise_img).float().to(device)
     elif config['init_method'] == 'content':
         init_img = content_img_prenorm
     else:
@@ -98,7 +99,7 @@ def neural_style_transfer(config):
             total_loss, content_loss, style_loss, tv_loss = tuning_step(optimizing_img)
             with torch.no_grad():
                 print(f'Adam | iteration: {cnt:03}, total loss={total_loss.item():12.4f}, content_loss={config["content_weight"] * content_loss.item():12.4f}, style loss={config["style_weight"] * style_loss.item():12.4f}, tv loss={config["tv_weight"] * tv_loss.item():12.4f}')
-                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations[config['optimizer']], saving_freq=config['saving_freq'], should_display=False)
+                utils.save_and_maybe_display(optimizing_img, dump_path, config, cnt, num_of_iterations[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
         optimizer = LBFGS((optimizing_img,), max_iter=num_of_iterations['lbfgs'], line_search_fn='strong_wolfe')
         cnt = 0
@@ -112,13 +113,14 @@ def neural_style_transfer(config):
                 total_loss.backward()
             with torch.no_grad():
                 print(f'L-BFGS | iteration: {cnt:03}, total loss={total_loss.item():12.4f}, content_loss={config["content_weight"] * content_loss.item():12.4f}, style loss={config["style_weight"] * style_loss.item():12.4f}, tv loss={config["tv_weight"] * tv_loss.item():12.4f}')
-                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations['lbfgs'], saving_freq=config['saving_freq'], should_display=False)
+                utils.save_and_maybe_display(optimizing_img, dump_path, config, cnt, num_of_iterations[config['optimizer']], should_display=False)
 
             cnt += 1
             return total_loss
 
         optimizer.step(closure)
 
+    playsound('end_of_training.mp3')
     return dump_path
 
 
@@ -137,14 +139,14 @@ if __name__ == "__main__":
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='wave_crop.jpg')
-    parser.add_argument("--width", type=int, help="width of content and style images", default=512)
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='okeffe_red_canna.png')
+    parser.add_argument("--width", type=int, help="width of content and style images", default=350)
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
-    parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=7e2)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=1e4)
-    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e-3)
+    parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e5)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e3)
+    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e2)
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
-    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='random')
+    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='content')
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     args = parser.parse_args()
 

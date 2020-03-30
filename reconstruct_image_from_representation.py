@@ -106,7 +106,7 @@ def reconstruct_image_from_representation(config):
             loss, _ = tuning_step(optimizing_img)
             with torch.no_grad():
                 print(f'Iteration: {it}, current {"content" if should_reconstruct_content else "style"} loss={loss:10.8f}')
-                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], it, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
+                utils.save_and_maybe_display(optimizing_img, dump_path, config, it, num_of_iterations[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
         cnt = 0
 
@@ -125,7 +125,7 @@ def reconstruct_image_from_representation(config):
             loss.backward()
             with torch.no_grad():
                 print(f'Iteration: {cnt}, current {"content" if should_reconstruct_content else "style"} loss={loss.item()}')
-                utils.save_and_maybe_display(optimizing_img, dump_path, config['img_format'], cnt, num_of_iterations[config['optimizer']], saving_freq=save_frequency[config['optimizer']], should_display=False)
+                utils.save_and_maybe_display(optimizing_img, dump_path, config, cnt, num_of_iterations[config['optimizer']], should_display=False)
                 cnt += 1
             return loss
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=True)
-    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
+    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
     parser.add_argument("--style_img_name", type=str, help="style image name", default='starry_night.jpg')

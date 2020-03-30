@@ -10,11 +10,23 @@ alt="NST Intro" width="480" height="360" border="10" /></a>
 The algorithm transfers style from one input image (the style image) onto another input image (the content image) using CNN nets (usually VGG-16/19) and gives a composite, stylized image out which keeps the content from the content image but takes the style from the style image.
 
 ### Why yet another NST repo?
-It's the **cleanest and most concise** NST repo that I know of + it's written in **PyTorch!** 
+It's the **cleanest and most concise** NST repo that I know of + it's written in **PyTorch!** :heart:
 
 Most of NST repos were written in TensorFlow (before it even had L-BFGS optimizer) and torch (obsolete framework, used Lua).
 
 ## Examples
+
+Cherry-picked (best pics)
+
+Content/Style tradeoff
+
+Impact of total variation loss
+
+Reconstruction of same images as from the [original paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf) (Fig 3.)
+
+### Content reconstruction
+
+### Style reconstruction
 
 ## Setup
 
@@ -27,10 +39,13 @@ That's it! It should work out-of-the-box executing environment.yml file which de
 
 PyTorch package will pull some version of CUDA with it but it is highly recommended that you install system-wide CUDA beforehand, mostly because of GPU drivers. I also recommend using Miniconda installer as a way to get conda on your system. 
 
-Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/blob/master/docs/MachineSetup.md) and use the most up-to-date versions of Miniconda (Python 3.7) and CUDA/cuDNN. (I recommend CUDA 10.1 as it is compatible with PyTorch 1.4, which is used in this repo, and newest cuDNN that goes with CUDA 10.1)
+Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/blob/master/docs/MachineSetup.md) and use the most up-to-date versions of Miniconda (Python 3.7) and CUDA/cuDNN. (I recommend CUDA 10.1 as it is compatible with PyTorch 1.4, which is used in this repo, and newest compatible cuDNN)
 
 
 ## Usage
+
+1. Copy content images to the default image content directory ./image_input
+Copy 1 or more style images to the default style directory ./styl...........
 
 ### Reconstruct image from representation
 

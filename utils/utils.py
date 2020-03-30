@@ -1,38 +1,45 @@
-from PIL import Image
+from skimage import io as sio
+from skimage.transform import resize
 import numpy as np
 import torch
 from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
+import cv2 as cv
 
 
 from models.definitions.vgg_nets import Vgg16, Vgg19
 
 
-def load_image(filename, width=None, size=None, scale=None, return_pil=False):
-    img = Image.open(filename)
+IMAGENET_MEAN_255 = [123.675, 116.28, 103.53]
+IMAGENET_STD_NEUTRAL = [1, 1, 1]
+
+
+def load_image(img_path, width=None):
+    img = sio.imread(img_path).astype(np.float32)
+    if img.shape[2] == 4:  # remove alpha channel
+        img = img[:, :, :3]
+    img /= 255.0  # get to [0, 1] range
     if width is not None and width != -1:
-        ratio = width / img.size[0]  # PIL size returns (w, h)
-        height = int(img.size[1] * ratio)
-        img = img.resize((width, height), Image.ANTIALIAS)
-    elif size is not None:
-        img = img.resize((size, size), Image.ANTIALIAS)
-    elif scale is not None:
-        img = img.resize((int(img.size[0] / scale), int(img.size[1] / scale)), Image.ANTIALIAS)
-    return img if return_pil else np.array(img)
+        ratio = width / img.shape[0]
+        height = int(img.shape[1] * ratio)
+        img = resize(img, (width, height), anti_aliasing=True)
+    return img
 
 
 def prepare_img(img_path, new_width, device):
-    img = load_image(img_path, width=new_width, return_pil=True)
+    img = load_image(img_path, width=new_width)
 
     transform_prenormalized = transforms.Compose([
         transforms.ToTensor(),
+        transforms.Lambda(lambda x: x.mul(255))
     ])
 
     # normalize using ImageNet's mean and std (VGG was trained on images normalized this way)
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Lambda(lambda x: x.mul(255)),
+        transforms.Normalize(mean=IMAGENET_MEAN_255, std=IMAGENET_STD_NEUTRAL)
     ])
 
     img_prenormalized = transform_prenormalized(img).to(device).unsqueeze(0)
@@ -52,26 +59,30 @@ def get_uint8_range(x):
 
 
 def save_image(img, img_path):
-    img = Image.fromarray(img)
-    if img.mode != 'RGB':
-        img = img.convert('RGB')
-    img.save(img_path)
+    if len(img.shape) == 2:
+        img = np.stack((img,) * 3, axis=-1)
+    cv.imwrite(img_path, img[:, :, ::-1])
 
 
-def save_and_maybe_display(optimizing_img, dump_path, img_format, img_id, num_of_iterations, saving_freq=-1, should_display=False):
+def generate_out_img_name(config):
+    prefix = config['content_img_name'].split('.')[0] + '_' + config['style_img_name'].split('.')[0]
+    suffix = f'_w_{str(config["width"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
+    return prefix + suffix
+
+
+def save_and_maybe_display(optimizing_img, dump_path, config, img_id, num_of_iterations, should_display=False):
+    saving_freq = config['saving_freq']
     out_img = optimizing_img.squeeze(axis=0).to('cpu').numpy()
     out_img = np.moveaxis(out_img, 0, 2)  # swap channel from 1st to 3rd position: ch, _, _ -> _, _, chr
 
     # for saving_freq == -1 save only the final result (otherwise save with frequency saving_freq and save the last pic)
     if img_id == num_of_iterations-1 or (saving_freq > 0 and img_id % saving_freq == 0):
-        # print(np.min(out_img), np.mean(out_img), np.max(out_img))
-        # _ = plt.hist(out_img[:, :, 0], bins='auto')  # arguments are passed to np.histogram
-        # plt.title("Histogram with 'auto' bins")
-        # plt.show()
-        np.save(os.path.join(dump_path, 'out.npy'), out_img)
-
-        out_img = Image.fromarray(np.uint8(get_uint8_range(out_img)))
-        out_img.save(os.path.join(dump_path, str(img_id).zfill(img_format[0]) + img_format[1]))
+        img_format = config['img_format']
+        out_img_name = str(img_id).zfill(img_format[0]) + img_format[1] if saving_freq != -1 else generate_out_img_name(config)
+        dump_img = np.copy(out_img)
+        dump_img += np.array(IMAGENET_MEAN_255).reshape((1, 1, 3))
+        dump_img = np.clip(dump_img, 0, 255).astype('uint8')
+        cv.imwrite(os.path.join(dump_path, out_img_name), dump_img[:, :, ::-1])
     if should_display:
         plt.imshow(np.uint8(get_uint8_range(out_img)))
         plt.show()
