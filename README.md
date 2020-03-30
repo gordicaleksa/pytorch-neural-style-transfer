@@ -47,6 +47,12 @@ Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/bl
 1. Copy content images to the default image content directory ./image_input
 Copy 1 or more style images to the default style directory ./styl...........
 
+### Debugging/Experimenting
+Output image looks too much like style image -> decrease style weight
+Output image looks too much like content image -> increase style weight
+There is too much noise (image is not smooth) -> increase tv weight
+(first try with multiples of 10 say if loss was 5e3 try 5e2 or 5e4 same for other weights)
+
 ### Reconstruct image from representation
 
 ### Neural style transfer

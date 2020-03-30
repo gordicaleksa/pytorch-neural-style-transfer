@@ -51,7 +51,7 @@ def reconstruct_image_from_representation(config):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    _, img = utils.prepare_img(img_path, config['width'], device)
+    _, img = utils.prepare_img(img_path, config['height'], device)
 
     optimizing_img = Variable(torch.randn(img.shape, device=device)*0.1, requires_grad=True)  # standard deviation = 0.1
 

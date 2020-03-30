@@ -50,9 +50,13 @@ class Vgg16(torch.nn.Module):
 
 class Vgg16Experimental(torch.nn.Module):
     """Everything exposed so you can play with different combinations for style and content representation"""
-    def __init__(self, requires_grad=False):
+    def __init__(self, requires_grad=False, show_progress=False):
         super().__init__()
-        vgg_pretrained_features = models.vgg16(pretrained=True).features
+        vgg_pretrained_features = models.vgg16(pretrained=True, progress=show_progress).features
+        self.layer_names = ['relu1_1', 'relu2_1', 'relu2_2', 'relu3_1', 'relu3_2', 'relu4_1', 'relu4_3', 'relu5_1']
+        self.content_feature_maps_index = 4
+        self.style_feature_maps_indices = list(range(len(self.layer_names)))  # all layers used for style representation
+
         self.conv1_1 = vgg_pretrained_features[0]
         self.relu1_1 = vgg_pretrained_features[1]
         self.conv1_2 = vgg_pretrained_features[2]
@@ -146,10 +150,9 @@ class Vgg16Experimental(torch.nn.Module):
         x = self.relu5_3(x)
         relu5_3 = x
         x = self.max_pooling5(x)
-
         # expose only the layers that you want to experiment with here
-        vgg_outputs = namedtuple("VggOutputs", ['relu1_2', 'relu2_1', 'relu3_1', 'relu4_1'])
-        out = vgg_outputs(relu1_2, relu2_1, relu3_1, relu4_1)
+        vgg_outputs = namedtuple("VggOutputs", self.layer_names)
+        out = vgg_outputs(relu1_1, relu2_1, relu2_2, relu3_1, relu3_2, relu4_1, relu4_3, relu5_1)
 
         return out
 

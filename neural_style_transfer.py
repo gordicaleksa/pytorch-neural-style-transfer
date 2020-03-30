@@ -58,15 +58,17 @@ def neural_style_transfer(config):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    content_img_prenorm, content_img = utils.prepare_img(content_img_path, config['width'], device)
-    style_img_prenorm, style_img = utils.prepare_img(style_img_path, config['width'], device)
+    content_img_prenorm, content_img = utils.prepare_img(content_img_path, config['height'], device)
+    style_img_prenorm, style_img = utils.prepare_img(style_img_path, config['height'], device)
 
     if config['init_method'] == 'random':
-        white_noise_img = np.random.uniform(-20., 20., content_img.shape).astype(np.float32)
-        init_img = torch.from_numpy(white_noise_img).float().to(device)
+        white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
+        gaussian_noise_img = np.random.normal(loc=0, scale=90., size=content_img.shape).astype(np.float32)
+        init_img = torch.from_numpy(gaussian_noise_img).float().to(device)
     elif config['init_method'] == 'content':
-        init_img = content_img_prenorm
+        init_img = content_img  # there is a lot of space for experimenting normalized seems to be working better here
     else:
+        # todo: resize style image
         init_img = style_img_prenorm
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
@@ -138,15 +140,15 @@ if __name__ == "__main__":
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='okeffe_red_canna.png')
-    parser.add_argument("--width", type=int, help="width of content and style images", default=350)
+    parser.add_argument("--content_img_name", type=str, help="content image name", default='figures.jpg')
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.png')
+    parser.add_argument("--height", type=int, help="height of content and style images", default=502)
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
     parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e5)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e3)
-    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e2)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e2)
+    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e1)
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
-    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='content')
+    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='random')
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     args = parser.parse_args()
 

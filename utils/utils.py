@@ -8,27 +8,27 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 
 
-from models.definitions.vgg_nets import Vgg16, Vgg19
+from models.definitions.vgg_nets import Vgg16, Vgg19, Vgg16Experimental
 
 
 IMAGENET_MEAN_255 = [123.675, 116.28, 103.53]
 IMAGENET_STD_NEUTRAL = [1, 1, 1]
 
 
-def load_image(img_path, width=None):
+def load_image(img_path, height=None):
     img = sio.imread(img_path).astype(np.float32)
     if img.shape[2] == 4:  # remove alpha channel
         img = img[:, :, :3]
     img /= 255.0  # get to [0, 1] range
-    if width is not None and width != -1:
-        ratio = width / img.shape[0]
-        height = int(img.shape[1] * ratio)
-        img = resize(img, (width, height), anti_aliasing=True)
+    if height is not None and height != -1:
+        ratio = height / img.shape[0]
+        width = int(img.shape[1] * ratio)
+        img = resize(img, (height, width), anti_aliasing=True)
     return img
 
 
-def prepare_img(img_path, new_width, device):
-    img = load_image(img_path, width=new_width)
+def prepare_img(img_path, new_height, device):
+    img = load_image(img_path, height=new_height)
 
     transform_prenormalized = transforms.Compose([
         transforms.ToTensor(),
@@ -66,7 +66,7 @@ def save_image(img, img_path):
 
 def generate_out_img_name(config):
     prefix = config['content_img_name'].split('.')[0] + '_' + config['style_img_name'].split('.')[0]
-    suffix = f'_w_{str(config["width"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
+    suffix = f'_w_{str(config["height"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
     return prefix + suffix
 
 
@@ -91,8 +91,13 @@ def save_and_maybe_display(optimizing_img, dump_path, config, img_id, num_of_ite
 # initially it takes some time for PyTorch to download the models into local cache
 def prepare_model(model, device):
     # we are not tuning model weights -> we are only tuning optimizing_img's pixels! (that's why requires_grad=False)
+    experimental = False
     if model == 'vgg16':
-        model = Vgg16(requires_grad=False, show_progress=True)
+        if experimental:
+            # much more flexible for experimenting with different style representations
+            model = Vgg16Experimental(requires_grad=False, show_progress=True)
+        else:
+            model = Vgg16(requires_grad=False, show_progress=True)
     elif model == 'vgg19':
         model = Vgg19(requires_grad=False, show_progress=True)
     else:
