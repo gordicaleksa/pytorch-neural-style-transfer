@@ -46,6 +46,9 @@ And here are some coupled with their style:
 
 <img src="data/examples/figures/figures_vg_wheat_field_w_350_m_vgg19_cw_100000.0_sw_300000.0_tv_1.0.png" width="400px">
 <img src="data/style-images/vg_wheat_field_cropped.png" width="267px">
+
+<img src="data/examples/figures/figures_vg_starry_night_w_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="400px">
+<img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
 
