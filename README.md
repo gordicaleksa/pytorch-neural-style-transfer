@@ -51,9 +51,12 @@ And here are some results coupled with their style:
 <img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
-*Note: all the images were produced by me (using this repo).*
+*Note: all of the stylized images were produced by me (using this repo).*
+*ToDo: Add credit to other people who produced content/style images.*
 
-Content/Style tradeoff
+### Content/Style tradeoff
+
+
 
 Impact of total variation loss
 
@@ -74,25 +77,32 @@ That's it! It should work out-of-the-box executing environment.yml file which de
 
 -----
 
-PyTorch package will pull some version of CUDA with it but it is highly recommended that you install system-wide CUDA beforehand, mostly because of GPU drivers. I also recommend using Miniconda installer as a way to get conda on your system. 
+PyTorch package will pull some version of CUDA with it, but it is highly recommended that you install system-wide CUDA beforehand, mostly because of GPU drivers. I also recommend using Miniconda installer as a way to get conda on your system. 
 
-Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/blob/master/docs/MachineSetup.md) and use the most up-to-date versions of Miniconda (Python 3.7) and CUDA/cuDNN. (I recommend CUDA 10.1 as it is compatible with PyTorch 1.4, which is used in this repo, and newest compatible cuDNN)
-
+Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/blob/master/docs/MachineSetup.md) and use the most up-to-date versions of Miniconda (Python 3.7) and CUDA/cuDNN.
+(I recommend CUDA 10.1 as it is compatible with PyTorch 1.4, which is used in this repo, and newest compatible cuDNN)
 
 ## Usage
 
-1. Copy content images to the default image content directory ./image_input
-Copy 1 or more style images to the default style directory ./styl...........
+1. Copy content images to the default content image directory -> ./data/content-images/
+2. Copy style iamges to the default style image directory -> ./data/style-images/
+3. Run `python neural_style_transfer.py --content_img_name <content-img-name> --style_img_name <style-img-name>`
+
+It's that easy. For more advanced usage take a look at the code it's (hopefully) self-explanatory (if you speak Python ^^).
 
 ### Debugging/Experimenting
-Q: Output image looks too much like style image? A: Decrease style weight
-Output image looks too much like content image -> increase style weight
-There is too much noise (image is not smooth) -> increase tv weight
-(first try with multiples of 10 say if loss was 5e3 try 5e2 or 5e4 same for other weights)
+
+Q: L-BFGS can't run on my computer it takes too much GPU VRAM? 
+A: Set Adam as your default and take a look at the code (there is a table) for initial style/content/tv weights you should use as a start point.
+
+Q: Output image looks too much like style image? 
+A: Decrease style weight or take a look at the table of weights (in neural_style_transfer.py) I've included that work.
+
+Q: There is too much noise (image is not smooth)?
+A: Increase total variation (tv) weight (usually by multiples of 10, again the table is your friend here or just experiment yourself).
 
 ### Reconstruct image from representation
 
-### Neural style transfer
 
 ## Acknowledgements
 
@@ -100,6 +110,8 @@ I found these repos useful: (while developing this one)
 * [fast_neural_style](https://github.com/pytorch/examples/tree/master/fast_neural_style) (PyTorch, feed-forward method)
 * [neural-style-tf](https://github.com/cysmith/neural-style-tf/) (TensorFlow, optimization method)
 * [neural-style](https://github.com/anishathalye/neural-style/) (TensorFlow, optimization method)
+
+I found the images I was using here:
 
 ## Citation
 
