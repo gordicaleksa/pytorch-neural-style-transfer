@@ -3,7 +3,7 @@ This repo contains a concise PyTorch implementation of the original NST paper (:
 
 It's an accompanying repository for [this video series on YouTube](https://www.youtube.com/watch?v=S78LQebx6jo&list=PLBoQnSflObcmbfshq9oNs41vODgXG-608).
 
-<p align="center">
+<p align="left">
 <a href="https://www.youtube.com/watch?v=S78LQebx6jo" target="_blank"><img src="https://img.youtube.com/vi/S78LQebx6jo/0.jpg" 
 alt="NST Intro" width="480" height="360" border="10" /></a>
 </p>
@@ -35,7 +35,7 @@ Transfering style gives beautiful artistic results:
 <img src="data/examples/lion/lion_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
 </p>
 
-And here are some coupled with their style:
+And here are some results coupled with their style:
 
 <p align="center">
 <img src="data/examples/figures/figures_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="400px">
