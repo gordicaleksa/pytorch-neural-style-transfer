@@ -88,6 +88,11 @@ Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/bl
 
 It's that easy. For more advanced usage take a look at the code it's (hopefully) self-explanatory (if you speak Python ^^).
 
+Just run it! So that you can get something like this: :heart:
+<p align="center">
+<img src="data/examples/taj_mahal/taj_mahal_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="615px">
+</p>
+
 ### Debugging/Experimenting
 
 Q: L-BFGS can't run on my computer it takes too much GPU VRAM?<br/>
