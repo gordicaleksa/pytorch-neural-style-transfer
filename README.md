@@ -56,11 +56,9 @@ And here are some results coupled with their style:
 
 ### Content/Style tradeoff
 
+### Impact of total variation (tv) loss
 
-
-Impact of total variation loss
-
-Starting with different init images: random, style, content
+### Starting with different init images: random, style, content
 
 Reconstruction of same images as from the [original paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf) (Fig 3.)
 
@@ -92,13 +90,13 @@ It's that easy. For more advanced usage take a look at the code it's (hopefully)
 
 ### Debugging/Experimenting
 
-Q: L-BFGS can't run on my computer it takes too much GPU VRAM? 
+Q: L-BFGS can't run on my computer it takes too much GPU VRAM?<br/>
 A: Set Adam as your default and take a look at the code (there is a table) for initial style/content/tv weights you should use as a start point.
 
-Q: Output image looks too much like style image? 
+Q: Output image looks too much like style image?<br/>
 A: Decrease style weight or take a look at the table of weights (in neural_style_transfer.py) I've included that work.
 
-Q: There is too much noise (image is not smooth)?
+Q: There is too much noise (image is not smooth)?<br/>
 A: Increase total variation (tv) weight (usually by multiples of 10, again the table is your friend here or just experiment yourself).
 
 ### Reconstruct image from representation
