@@ -51,6 +51,7 @@ And here are some results coupled with their style:
 <img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
+*Note: all the images were produced by me (using this repo).*
 
 Content/Style tradeoff
 
