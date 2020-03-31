@@ -91,10 +91,10 @@ It's that easy. For more advanced usage take a look at the code it's (hopefully)
 ### Debugging/Experimenting
 
 Q: L-BFGS can't run on my computer it takes too much GPU VRAM?<br/>
-A: Set Adam as your default and take a look at the code (there is a table) for initial style/content/tv weights you should use as a start point.
+A: Set Adam as your default and take a look at the code for initial style/content/tv weights you should use as a start point.
 
 Q: Output image looks too much like style image?<br/>
-A: Decrease style weight or take a look at the table of weights (in neural_style_transfer.py) I've included that work.
+A: Decrease style weight or take a look at the table of weights (in neural_style_transfer.py), which I've included, that works.
 
 Q: There is too much noise (image is not smooth)?<br/>
 A: Increase total variation (tv) weight (usually by multiples of 10, again the table is your friend here or just experiment yourself).
