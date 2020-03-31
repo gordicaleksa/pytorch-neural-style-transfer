@@ -10,5 +10,4 @@ dependencies:
   - torchvision=0.5.0
   - pip:
     - numpy==1.18.1
-    - scikit-image==0.16.2
     - opencv-python==4.2.0.32

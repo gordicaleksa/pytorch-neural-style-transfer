@@ -58,18 +58,20 @@ def neural_style_transfer(config):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    content_img_prenorm, content_img = utils.prepare_img(content_img_path, config['height'], device)
-    style_img_prenorm, style_img = utils.prepare_img(style_img_path, config['height'], device)
+    content_img = utils.prepare_img(content_img_path, config['height'], device)
+    style_img = utils.prepare_img(style_img_path, config['height'], device)
 
     if config['init_method'] == 'random':
-        white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
+        # white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
         gaussian_noise_img = np.random.normal(loc=0, scale=90., size=content_img.shape).astype(np.float32)
         init_img = torch.from_numpy(gaussian_noise_img).float().to(device)
     elif config['init_method'] == 'content':
-        init_img = content_img  # there is a lot of space for experimenting normalized seems to be working better here
+        init_img = content_img
     else:
-        # todo: resize style image
-        init_img = style_img_prenorm
+        # init image has same dimension as content image - this is a hard constraint
+        # feature maps need to be of same size for content image and init image
+        style_img_resized = utils.prepare_img(style_img_path, np.asarray(content_img.shape[2:]), device)
+        init_img = style_img_resized
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
 
@@ -85,7 +87,7 @@ def neural_style_transfer(config):
 
     target_representations = [target_content_representation, target_style_representation]
 
-    # magic numbers in general are a big no no - as this is usually not a hyperparam we make an exception to the rule
+    # magic numbers in general are a big no no - some things in this code are left like this by design to avoid clutter
     num_of_iterations = {
         "lbfgs": 1000,
         "adam": 1000,
@@ -138,19 +140,26 @@ if __name__ == "__main__":
 
     #
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
+    # sorted so that ones at the top are more likely to be changed than the ones on the bottom
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--content_img_name", type=str, help="content image name", default='figures.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.png')
-    parser.add_argument("--height", type=int, help="height of content and style images", default=502)
-    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='vg_starry_night.jpg')
+    parser.add_argument("--height", type=int, help="height of content and style images", default=400)
     parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e5)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e2)
-    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e1)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=1e3)
+    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e0)
+    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='random')
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     args = parser.parse_args()
+
+    # some values of weights that worked for figures.jpg, vg_starry_night.jpg (starting point for finding good images)
+    # once you understand what each one does it gets really easy -> checkout README.md
+    # lbfgs, content init -> (cw, sw, tv) = (1e5, 1e4, 1e1)
+    # lbfgs, style   init -> (cw, sw, tv) = (1e5, 1e1, 1e-1)
+    # lbfgs, random  init -> (cw, sw, tv) = (1e5, 1e3, 1e0)
 
     optimization_config = dict()
     for arg in vars(args):

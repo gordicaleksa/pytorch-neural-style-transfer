@@ -1,11 +1,9 @@
-from skimage import io as sio
-from skimage.transform import resize
+import cv2 as cv
 import numpy as np
 import torch
 from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
-import cv2 as cv
 
 
 from models.definitions.vgg_nets import Vgg16, Vgg19, Vgg16Experimental
@@ -15,37 +13,35 @@ IMAGENET_MEAN_255 = [123.675, 116.28, 103.53]
 IMAGENET_STD_NEUTRAL = [1, 1, 1]
 
 
-def load_image(img_path, height=None):
-    img = sio.imread(img_path).astype(np.float32)
-    if img.shape[2] == 4:  # remove alpha channel
-        img = img[:, :, :3]
+def load_image(img_path, target_shape=None):
+    if not os.path.exists(img_path):
+        raise Exception(f'Path does not exist: {img_path}')
+    img = cv.imread(img_path)[:, :, ::-1].astype(np.float32)  # [:, :, ::-1] converts rgb into bgr (opencv contraint...)
     img /= 255.0  # get to [0, 1] range
-    if height is not None and height != -1:
-        ratio = height / img.shape[0]
-        width = int(img.shape[1] * ratio)
-        img = resize(img, (height, width), anti_aliasing=True)
+    if target_shape is not None:
+        if isinstance(target_shape, int) and target_shape != -1:  # scalar -> implicitly setting the height
+            ratio = target_shape / img.shape[0]
+            width = int(img.shape[1] * ratio)
+            img = cv.resize(img, (width, target_shape), interpolation=cv.INTER_CUBIC)
+        else:  # set both dimensions to target shape
+            img = cv.resize(img, (target_shape[1], target_shape[0]), interpolation=cv.INTER_CUBIC)
     return img
 
 
-def prepare_img(img_path, new_height, device):
-    img = load_image(img_path, height=new_height)
-
-    transform_prenormalized = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Lambda(lambda x: x.mul(255))
-    ])
+def prepare_img(img_path, target_shape, device):
+    img = load_image(img_path, target_shape=target_shape)
 
     # normalize using ImageNet's mean and std (VGG was trained on images normalized this way)
+    # [0, 255] range works much better than [0, 1] range
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.mul(255)),
         transforms.Normalize(mean=IMAGENET_MEAN_255, std=IMAGENET_STD_NEUTRAL)
     ])
 
-    img_prenormalized = transform_prenormalized(img).to(device).unsqueeze(0)
     img = transform(img).to(device).unsqueeze(0)
 
-    return img_prenormalized, img
+    return img
 
 
 def get_uint8_range(x):
@@ -61,12 +57,12 @@ def get_uint8_range(x):
 def save_image(img, img_path):
     if len(img.shape) == 2:
         img = np.stack((img,) * 3, axis=-1)
-    cv.imwrite(img_path, img[:, :, ::-1])
+    cv.imwrite(img_path, img[:, :, ::-1])  # [:, :, ::-1] converts rgb into bgr (opencv contraint...)
 
 
 def generate_out_img_name(config):
     prefix = config['content_img_name'].split('.')[0] + '_' + config['style_img_name'].split('.')[0]
-    suffix = f'_w_{str(config["height"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
+    suffix = f'_o_{config["optimizer"]}_i_{config["init_method"]}_h_{str(config["height"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
     return prefix + suffix
 
 
