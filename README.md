@@ -101,6 +101,26 @@ A: Increase total variation (tv) weight (usually by multiples of 10, again the t
 
 ### Reconstruct image from representation
 
+I've also included a file (reconstruct_image_from_representation.py) that will help you better understand how the algorithm works. <br/>
+What it does is that it allows you to reconstruct an image (either style or content) starting from purely noisy image (gaussian/uniform) <br/>
+using only it's content/style representations (we get those usually through VGG16/19). 
+
+1. Run `python reconstruct_image_from_representation.py --should_reconstruct_content <Bool> --should_visualize_representation <Bool>`
+
+That's it. 
+--should_visualize_representation if set to True will show you how the feature maps or Gram matrices actually look like!
+
+<!-- <p align="center">
+<img src="data/examples/bridge/green_bridge_vg_starry_night_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+<img src="data/examples/bridge/green_bridge_edtaonisl_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+<img src="data/examples/bridge/green_bridge_wave_crop_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+
+<img src="data/examples/lion/lion_candy_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+<img src="data/examples/lion/lion_edtaonisl_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+<img src="data/examples/lion/lion_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="300px">
+</p> -->
+
+No more dark magic.
 
 ## Acknowledgements
 
