@@ -32,7 +32,7 @@ def prepare_img(img_path, target_shape, device):
     img = load_image(img_path, target_shape=target_shape)
 
     # normalize using ImageNet's mean and std (VGG was trained on images normalized this way)
-    # [0, 255] range works much better than [0, 1] range
+    # [0, 255] range works much better than [0, 1] range (VGG was again trained that way)
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.mul(255)),

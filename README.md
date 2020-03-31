@@ -9,14 +9,25 @@ alt="NST Intro" width="480" height="360" border="10" /></a>
 ### What is NST algorithm?
 The algorithm transfers style from one input image (the style image) onto another input image (the content image) using CNN nets (usually VGG-16/19) and gives a composite, stylized image out which keeps the content from the content image but takes the style from the style image.
 
+<p align="center">
+<img src="data/examples/bridge/green_bridge_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="512"/>
+<img src="data/examples/bridge/content_style.png" width="290"/>
+</p>
+
 ### Why yet another NST repo?
 It's the **cleanest and most concise** NST repo that I know of + it's written in **PyTorch!** :heart:
 
-Most of NST repos were written in TensorFlow (before it even had L-BFGS optimizer) and torch (obsolete framework, used Lua).
+Most of NST repos were written in TensorFlow (before it even had L-BFGS optimizer) and torch (obsolete framework, used Lua) and are overly complicated often times including multiple functionalities (video, static image, color transfer, etc.) in 1 repo and exposing 100 parameters over command-line (out of which maybe 5 or 6 may actually be used on a regular basis).
 
 ## Examples
 
-Cherry-picked (best pics)
+Transfering style gives beautiful artistic results:
+
+<p align="center">
+<img src="data/examples/bridge/green_bridge_vg_starry_night_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" height="255px">
+<img src="data/examples/bridge/green_bridge_edtaonisl_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" height="255px">
+<img src="data/examples/bridge/green_bridge_wave_crop_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" height="255px">
+</p>
 
 Content/Style tradeoff
 
@@ -62,9 +73,9 @@ There is too much noise (image is not smooth) -> increase tv weight
 ## Acknowledgements
 
 I found these repos useful: (while developing this one)
-* [fast_neural_style](https://github.com/pytorch/examples/tree/master/fast_neural_style)
-* [neural-style-tf](https://github.com/cysmith/neural-style-tf/)
-* [neural-style](https://github.com/anishathalye/neural-style/)
+* [fast_neural_style](https://github.com/pytorch/examples/tree/master/fast_neural_style) (PyTorch, feed-forward method)
+* [neural-style-tf](https://github.com/cysmith/neural-style-tf/) (TensorFlow, optimization method)
+* [neural-style](https://github.com/anishathalye/neural-style/) (TensorFlow, optimization method)
 
 ## Citation
 
