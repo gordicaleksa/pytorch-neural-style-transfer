@@ -3,15 +3,17 @@ This repo contains a concise PyTorch implementation of the original NST paper (:
 
 It's an accompanying repository for [this video series on YouTube](https://www.youtube.com/watch?v=S78LQebx6jo&list=PLBoQnSflObcmbfshq9oNs41vODgXG-608).
 
+<p align="center">
 <a href="https://www.youtube.com/watch?v=S78LQebx6jo" target="_blank"><img src="https://img.youtube.com/vi/S78LQebx6jo/0.jpg" 
 alt="NST Intro" width="480" height="360" border="10" /></a>
+</p>
 
 ### What is NST algorithm?
 The algorithm transfers style from one input image (the style image) onto another input image (the content image) using CNN nets (usually VGG-16/19) and gives a composite, stylized image out which keeps the content from the content image but takes the style from the style image.
 
 <p align="center">
-<img src="data/examples/bridge/green_bridge_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="580"/>
-<img src="data/examples/bridge/content_style.png" width="266"/>
+<img src="data/examples/bridge/green_bridge_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="615"/>
+<img src="data/examples/bridge/content_style.png" width="282"/>
 </p>
 
 ### Why yet another NST repo?
