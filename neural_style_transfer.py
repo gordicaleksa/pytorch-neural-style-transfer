@@ -4,7 +4,6 @@ from utils.video_utils import create_video_from_intermediate_results
 import torch
 from torch.optim import Adam, LBFGS
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import argparse
@@ -90,14 +89,14 @@ def neural_style_transfer(config):
     # magic numbers in general are a big no no - some things in this code are left like this by design to avoid clutter
     num_of_iterations = {
         "lbfgs": 1000,
-        "adam": 1000,
+        "adam": 3000,
     }
 
     #
     # Start of optimization procedure
     #
     if config['optimizer'] == 'adam':
-        optimizer = Adam((optimizing_img,))
+        optimizer = Adam((optimizing_img,), lr=1e1)
         tuning_step = make_tuning_step(neural_net, optimizer, target_representations, content_feature_maps_index_name[0], style_feature_maps_indices_names[0], config)
         for cnt in range(num_of_iterations[config['optimizer']]):
             total_loss, content_loss, style_loss, tv_loss = tuning_step(optimizing_img)
@@ -105,6 +104,7 @@ def neural_style_transfer(config):
                 print(f'Adam | iteration: {cnt:03}, total loss={total_loss.item():12.4f}, content_loss={config["content_weight"] * content_loss.item():12.4f}, style loss={config["style_weight"] * style_loss.item():12.4f}, tv loss={config["tv_weight"] * tv_loss.item():12.4f}')
                 utils.save_and_maybe_display(optimizing_img, dump_path, config, cnt, num_of_iterations[config['optimizer']], should_display=False)
     elif config['optimizer'] == 'lbfgs':
+        # line_search_fn does not seem to have significant impact on result
         optimizer = LBFGS((optimizing_img,), max_iter=num_of_iterations['lbfgs'], line_search_fn='strong_wolfe')
         cnt = 0
 
@@ -140,26 +140,31 @@ if __name__ == "__main__":
 
     #
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
-    # sorted so that ones at the top are more likely to be changed than the ones on the bottom
+    # sorted so that the ones on the top are more likely to be changed than the ones on the bottom
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--content_img_name", type=str, help="content image name", default='figures.jpg')
     parser.add_argument("--style_img_name", type=str, help="style image name", default='vg_starry_night.jpg')
     parser.add_argument("--height", type=int, help="height of content and style images", default=400)
     parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e5)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=1e3)
-    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e0)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=1e2)
+    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e-1)
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
-    parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
-    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='random')
+    parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='adam')
+    parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='style')
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     args = parser.parse_args()
 
     # some values of weights that worked for figures.jpg, vg_starry_night.jpg (starting point for finding good images)
-    # once you understand what each one does it gets really easy -> checkout README.md
-    # lbfgs, content init -> (cw, sw, tv) = (1e5, 1e4, 1e1)
+    # once you understand what each one does it gets really easy -> also see README.md
+    
+    # lbfgs, content init -> (cw, sw, tv) = (1e5, 3e4, 1e0)
     # lbfgs, style   init -> (cw, sw, tv) = (1e5, 1e1, 1e-1)
     # lbfgs, random  init -> (cw, sw, tv) = (1e5, 1e3, 1e0)
+
+    # adam, content init -> (cw, sw, tv, lr) = (1e5, 1e5, 1e-1, 1e1)
+    # adam, style   init -> (cw, sw, tv, lr) = (1e5, 1e2, 1e-1, 1e1)
+    # adam, random  init -> (cw, sw, tv, lr) = (1e5, 1e2, 1e-1, 1e1)
 
     optimization_config = dict()
     for arg in vars(args):

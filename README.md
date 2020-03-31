@@ -22,6 +22,8 @@ Content/Style tradeoff
 
 Impact of total variation loss
 
+Starting with different init images: random, style, content
+
 Reconstruction of same images as from the [original paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf) (Fig 3.)
 
 ### Content reconstruction
@@ -48,7 +50,7 @@ Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/bl
 Copy 1 or more style images to the default style directory ./styl...........
 
 ### Debugging/Experimenting
-Output image looks too much like style image -> decrease style weight
+Q: Output image looks too much like style image? A: Decrease style weight
 Output image looks too much like content image -> increase style weight
 There is too much noise (image is not smooth) -> increase tv weight
 (first try with multiples of 10 say if loss was 5e3 try 5e2 or 5e4 same for other weights)
