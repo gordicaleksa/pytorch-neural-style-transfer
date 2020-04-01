@@ -51,8 +51,7 @@ And here are some results coupled with their style:
 <img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
-*Note: all of the stylized images were produced by me (using this repo).*
-*ToDo: Add credit to other people who produced content/style images.*
+*Note: all of the stylized images were produced by me (using this repo), credits for original images are given bellow [(acknowledgements)](#acknowledgements).*
 
 ### Content/Style tradeoff
 
