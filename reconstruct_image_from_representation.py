@@ -43,6 +43,7 @@ def reconstruct_image_from_representation(config):
     should_reconstruct_content = config['should_reconstruct_content']
     should_visualize_representation = config['should_visualize_representation']
     dump_path = os.path.join(config['output_img_dir'], ('c' if should_reconstruct_content else 's') + '_reconstruction_' + config['optimizer'])
+    dump_path = os.path.join(dump_path, config['content_img_name'].split('.')[0] if should_reconstruct_content else config['style_img_name'].split('.')[0])
     os.makedirs(dump_path, exist_ok=True)
 
     content_img_path = os.path.join(config['content_images_dir'], config['content_img_name'])
@@ -54,16 +55,15 @@ def reconstruct_image_from_representation(config):
     img = utils.prepare_img(img_path, config['height'], device)
 
     gaussian_noise_img = np.random.normal(loc=0, scale=90., size=img.shape).astype(np.float32)
-    init_img = torch.from_numpy(gaussian_noise_img).float().to(device)
+    white_noise_img = np.random.uniform(-90., 90., img.shape).astype(np.float32)
+    init_img = torch.from_numpy(white_noise_img).float().to(device)
     optimizing_img = Variable(init_img, requires_grad=True)
 
     # indices pick relevant feature maps (say conv4_1, relu1_1, etc.)
     neural_net, content_feature_maps_index_name, style_feature_maps_indices_names = utils.prepare_model(config['model'], device)
 
-    loss_fn = torch.nn.MSELoss(reduction='mean')
     # don't want to expose everything that's not crucial so some things are hardcoded
-    num_of_iterations = {'adam': 6000, 'lbfgs': 500}
-    save_frequency = {'adam': 100, 'lbfgs': 10}
+    num_of_iterations = {'adam': 3000, 'lbfgs': 350}
 
     set_of_feature_maps = neural_net(img)
 
@@ -118,7 +118,7 @@ def reconstruct_image_from_representation(config):
             optimizer.zero_grad()
             loss = 0.0
             if should_reconstruct_content:
-                loss = loss_fn(target_content_representation, neural_net(optimizing_img)[content_feature_maps_index_name[0]].squeeze(axis=0))
+                loss = torch.nn.MSELoss(reduction='mean')(target_content_representation, neural_net(optimizing_img)[content_feature_maps_index_name[0]].squeeze(axis=0))
             else:
                 current_set_of_feature_maps = neural_net(optimizing_img)
                 current_style_representation = [utils.gram_matrix(fmaps) for i, fmaps in enumerate(current_set_of_feature_maps) if i in style_feature_maps_indices_names[0]]
@@ -131,7 +131,7 @@ def reconstruct_image_from_representation(config):
                 cnt += 1
             return loss
 
-        optimizer = torch.optim.LBFGS((optimizing_img,), max_iter=500)
+        optimizer = torch.optim.LBFGS((optimizing_img,), max_iter=num_of_iterations[config['optimizer']], line_search_fn='strong_wolfe')
         optimizer.step(closure)
 
 
@@ -143,17 +143,17 @@ if __name__ == "__main__":
     content_images_dir = os.path.join(default_resource_dir, 'content-images')
     style_images_dir = os.path.join(default_resource_dir, 'style-images')
     output_img_dir = os.path.join(default_resource_dir, 'output-images')
-    img_format = (4, '.png')  # saves images in the format: %04d.png
+    img_format = (4, '.jpg')  # saves images in the format: %04d.jpg
 
     #
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=False)
-    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
+    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='vg_starry_night.jpg')
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.jpg')
     parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=500)
 
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=1)
@@ -161,6 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     args = parser.parse_args()
 
+    # just wrapping settings into a dictionary
     optimization_config = dict()
     for arg in vars(args):
         optimization_config[arg] = getattr(args, arg)

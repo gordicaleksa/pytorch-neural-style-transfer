@@ -7,7 +7,6 @@ from torch.autograd import Variable
 import numpy as np
 import os
 import argparse
-from playsound import playsound
 
 
 def build_loss(neural_net, optimizing_img, target_representations, content_feature_maps_index, style_feature_maps_indices, config):
@@ -124,7 +123,6 @@ def neural_style_transfer(config):
 
         optimizer.step(closure)
 
-    playsound('end_of_training.mp3')
     return dump_path
 
 
@@ -136,19 +134,19 @@ if __name__ == "__main__":
     content_images_dir = os.path.join(default_resource_dir, 'content-images')
     style_images_dir = os.path.join(default_resource_dir, 'style-images')
     output_img_dir = os.path.join(default_resource_dir, 'output-images')
-    img_format = (4, '.png')  # saves images in the format: %04d.png
+    img_format = (4, '.jpg')  # saves images in the format: %04d.jpg
 
     #
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     # sorted so that the ones on the top are more likely to be changed than the ones on the bottom
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--content_img_name", type=str, help="content image name", default='figures.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='vg_starry_night.jpg')
-    parser.add_argument("--height", type=int, help="height of content and style images", default=500)
+    parser.add_argument("--content_img_name", type=str, help="content image name", default='tubingen.png')
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='kandinsky.jpg')
+    parser.add_argument("--height", type=int, help="height of content and style images", default=400)
     parser.add_argument("--content_weight", type=float, help="weight factor for content loss", default=1e5)
-    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e7)
-    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e2)
+    parser.add_argument("--style_weight", type=float, help="weight factor for style loss", default=3e4)
+    parser.add_argument("--tv_weight", type=float, help="weight factor for total variation loss", default=1e0)
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='content')
@@ -166,6 +164,7 @@ if __name__ == "__main__":
     # adam, style   init -> (cw, sw, tv, lr) = (1e5, 1e2, 1e-1, 1e1)
     # adam, random  init -> (cw, sw, tv, lr) = (1e5, 1e2, 1e-1, 1e1)
 
+    # just wrapping settings into a dictionary
     optimization_config = dict()
     for arg in vars(args):
         optimization_config[arg] = getattr(args, arg)
