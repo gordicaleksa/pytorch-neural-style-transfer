@@ -95,7 +95,7 @@ Reconstruction of same images as from the [original paper](https://www.cv-founda
 
 ### Content reconstruction
 
-If we only use the content (perceptual) loss and try to minimize that objective function this is what we get:
+If we only use the content (perceptual) loss and try to minimize that objective function this is what we get (starting from noise):
 
 <p align="center">
 <img src="data/examples/content_reconstruction/0000.jpg" width="225px">
@@ -105,13 +105,20 @@ If we only use the content (perceptual) loss and try to minimize that objective 
 </p>
 
 In steps 0, 26, 70 and 509 of the L-BFGS numerical optimizer, using layer relu3_1 for content representation.<br/> 
-Checkout [this section](#reconstruct-image-from-representation) if you want to play with this.
+Check-out [this section](#reconstruct-image-from-representation) if you want to play with this.
 
 ### Style reconstruction
 
-We can do the same thing for style:
+We can do the same thing for style (on the left is the original art image "Candy") starting from noise:
 
+<p align="center">
+<img src="data/examples/style_reconstruction/candy.jpg" width="225px">
+<img src="data/examples/style_reconstruction/0045.jpg" width="225px">
+<img src="data/examples/style_reconstruction/0129.jpg" width="225px">
+<img src="data/examples/style_reconstruction/0510.jpg" width="225px">
+</p>
 
+In steps 45, 129 and 510 of the L-BFGS using layers relu1_1, relu2_1, relu3_1, relu4_1 and relu5_1 for style representation.
 
 ## Setup
 
