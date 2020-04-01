@@ -153,7 +153,7 @@ if __name__ == "__main__":
     parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.png')
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='vg_starry_night.jpg')
     parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=500)
 
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=1)

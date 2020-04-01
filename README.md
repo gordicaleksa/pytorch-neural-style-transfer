@@ -51,7 +51,7 @@ And here are some results coupled with their style:
 <img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
-*Note: all of the stylized images were produced by me (using this repo), credits for original image artist [are given bellow](#acknowledgements).*
+*Note: all of the stylized images were produced by me (using this repo), credits for original image artists [are given bellow](#acknowledgements).*
 
 ### Content/Style tradeoff
 
@@ -99,7 +99,7 @@ It's that easy. For more advanced usage take a look at the code it's (hopefully)
 
 Just run it! So that you can get something like this: :heart:
 <p align="center">
-<img src="data/examples/taj_mahal/taj_mahal_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="615px">
+<img src="data/examples/taj_mahal/taj_mahal_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="615px">
 </p>
 
 ### Debugging/Experimenting
@@ -121,15 +121,17 @@ It will also reconstruct either only style or content using those representation
 
 Just run this:<br/>
 `reconstruct_image_from_representation.py --should_reconstruct_content <Bool> --should_visualize_representation <Bool>`
-<br/>
+<br/><br/>
 And that's it! --should_visualize_representation if set to True will visualize these for you<br/>
 --should_reconstruct_content picks between style and content reconstruction
+
+Here are some feature maps (relu1_1, VGG 19) as well as a Gram matrix (relu2_1, VGG 19) for Van Gogh's famous [starry night](https://en.wikipedia.org/wiki/The_Starry_Night):
 
 <p align="center">
 <img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005.jpg" width="225px">
 <img src="data/examples/fms_gram/fm_vgg19_relu1_1_0046.jpg" width="225px">
 <img src="data/examples/fms_gram/fm_vgg19_relu1_1_0058.jpg" width="225px">
-<img src="data/examples/fms_gram/gram_0001.png" width="225px">
+<img src="data/examples/fms_gram/gram_vgg19_relu2_1_0001.jpg" width="225px">
 </p>
 
 No more dark magic.
