@@ -62,7 +62,7 @@ I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4) and used rando
 <img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10.0_tv_1.0.jpg" width="225px">
 <img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_100.0_tv_1.0.jpg" width="225px">
 <img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_1000.0_tv_1.0.jpg" width="225px">
-<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10000.0_tv_1.0" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10000.0_tv_1.0.jpg" width="225px">
 </p>
 
 ### Impact of total variation (tv) loss
@@ -126,9 +126,9 @@ And that's it! --should_visualize_representation if set to True will visualize t
 --should_reconstruct_content picks between style and content reconstruction
 
 <p align="center">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005.png" width="225px">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0046.png" width="225px">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0058.png" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005.jpg" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0046.jpg" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0058.jpg" width="225px">
 <img src="data/examples/fms_gram/gram_0001.png" width="225px">
 </p>
 
