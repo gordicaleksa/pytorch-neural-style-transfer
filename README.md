@@ -107,13 +107,15 @@ A: Increase total variation (tv) weight (usually by multiples of 10, again the t
 ### Reconstruct image from representation
 
 I've also included a file that will help you better understand how the algorithm works and what the neural net sees.<br/>
-What it does is that it allows you to visualize content (feature maps) and style representations (Gram matrices) which we usually get through VGG16/19.<br/>
+What it does is that it allows you to visualize content **(feature maps)** and style representations **(Gram matrices)**.<br/>
+It will also reconstruct either only style or content using those representations. <br/> 
 
 Just run this:<br/>
-`python reconstruct_image_from_representation.py --should_reconstruct_content <Bool> --should_visualize_representation <Bool>`
+`reconstruct_image_from_representation.py --should_reconstruct_content <Bool> --should_visualize_representation <Bool>`
 <br/>
-And that's it. 
---should_visualize_representation if set to True will show you how the feature maps or Gram matrices actually look like:
+And that's it. <br/>
+--should_visualize_representation if set to True will visualize these for you
+--should_reconstruct_content picks between style and content reconstruction
 
 <p align="center">
 <img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005.png" width="225px">
@@ -131,7 +133,12 @@ I found these repos useful: (while developing this one)
 * [neural-style-tf](https://github.com/cysmith/neural-style-tf/) (TensorFlow, optimization method)
 * [neural-style](https://github.com/anishathalye/neural-style/) (TensorFlow, optimization method)
 
-I found the images I was using here:
+I found some of the content/style images I was using here:
+* [style/artistic images](https://www.rawpixel.com/board/537381/vincent-van-gogh-free-original-public-domain-paintings?sort=curated&mode=shop&page=1)
+* [awesome figures pic] (https://www.pexels.com/photo/action-android-device-electronics-595804/)
+* [awesome bridge pic] (https://www.pexels.com/photo/gray-bridge-and-trees-814499/)
+
+Other images are now already classics in the NST world.
 
 ## Citation
 
