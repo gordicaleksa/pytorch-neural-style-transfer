@@ -47,7 +47,7 @@ And here are some results coupled with their style:
 <img src="data/examples/figures/figures_vg_wheat_field_w_350_m_vgg19_cw_100000.0_sw_300000.0_tv_1.0_resized.jpg" width="400px">
 <img src="data/style-images/vg_wheat_field_cropped.jpg" width="267px">
 
-<img src="data/examples/figures/figures_vg_starry_night_w_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="400px">
+<img src="data/examples/figures/figures_vg_starry_night_w_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0_resized.jpg" width="400px">
 <img src="data/style-images/vg_starry_night_resized.jpg" width="267px">
 </p>
 
@@ -59,10 +59,10 @@ Changing style weight gives you less or more style on the final image (makes sen
 I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4) and used random image as initialization image.
 
 <p align="center">
-<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10.0_tv_1.0.jpg" width="225px">
-<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_100.0_tv_1.0.jpg" width="225px">
-<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_1000.0_tv_1.0.jpg" width="225px">
-<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10000.0_tv_1.0.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10.0_tv_1.0_resized.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_100.0_tv_1.0_resized.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_1000.0_tv_1.0_resized.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10000.0_tv_1.0_resized.jpg" width="225px">
 </p>
 
 ### Impact of total variation (tv) loss
@@ -128,9 +128,9 @@ And that's it! --should_visualize_representation if set to True will visualize t
 Here are some feature maps (relu1_1, VGG 19) as well as a Gram matrix (relu2_1, VGG 19) for Van Gogh's famous [starry night](https://en.wikipedia.org/wiki/The_Starry_Night):
 
 <p align="center">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005.jpg" width="225px">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0046.jpg" width="225px">
-<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0058.jpg" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0005_resized.jpg" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0046_resized.jpg" width="225px">
+<img src="data/examples/fms_gram/fm_vgg19_relu1_1_0058_resized.jpg" width="225px">
 <img src="data/examples/fms_gram/gram_vgg19_relu2_1_0001.jpg" width="225px">
 </p>
 
