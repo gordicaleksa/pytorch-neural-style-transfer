@@ -55,8 +55,8 @@ And here are some results coupled with their style:
 
 ### Content/Style tradeoff
 
-Changing style weight gives you less or more style on the final image (makes sense right?) <br/>
-I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4) and used random image as initialization image.
+Changing style weight gives you less or more style on the final image, assuming you keep the content weight constant (makes sense right?) <br/>
+I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4), while keeping content weight at constant 1e5, and I used random image as initialization image. 
 
 <p align="center">
 <img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10.0_tv_1.0_resized.jpg" width="225px">
@@ -77,7 +77,19 @@ I also did increments of 10 here (1e1, 1e4, 1e5, 1e6) and I used content image a
 <img src="data/examples/tv-tradeoff/figures_candy_o_lbfgs_i_content_h_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1000000.0_resized.jpg" width="225px">
 </p>
 
-### Starting with different init images: random, style, content
+### Optimization initialization
+
+Starting with different initialization images: noise (white or gaussian), content and style leads to different results. <br/>
+Empirically content image gives the best results as explored in [this research paper](https://arxiv.org/pdf/1602.07188.pdf) also. <br/>
+Here you can see results for content, random and style initialization in that order (left to right):
+
+<p align="center">
+<img src="data/examples/init_methods/golden_gate_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0_resized.jpg" width="300px">
+<img src="data/examples/init_methods/golden_gate_vg_la_cafe_o_lbfgs_i_random_h_500_m_vgg19_cw_100000.0_sw_1000.0_tv_1.0_resized.jpg" width="300px">
+<img src="data/examples/init_methods/golden_gate_vg_la_cafe_o_lbfgs_i_style_h_500_m_vgg19_cw_100000.0_sw_10.0_tv_0.1_resized.jpg" width="300px">
+</p>
+
+You can also see that with style initialization we had some content from the artwork leaking directly into our output.
 
 Reconstruction of same images as from the [original paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf) (Fig 3.)
 
