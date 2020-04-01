@@ -38,17 +38,17 @@ Transfering style gives beautiful artistic results:
 And here are some results coupled with their style:
 
 <p align="center">
-<img src="data/examples/figures/figures_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="400px">
-<img src="data/style-images/ben_giles.png" width="267px">
+<img src="data/examples/figures/figures_ben_giles_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="400px">
+<img src="data/style-images/ben_giles.jpg" width="267px">
 
-<img src="data/examples/figures/figures_wave_crop_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="400px">
+<img src="data/examples/figures/figures_wave_crop_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="400px">
 <img src="data/style-images/wave_crop.jpg" width="267px">
 
-<img src="data/examples/figures/figures_vg_wheat_field_w_350_m_vgg19_cw_100000.0_sw_300000.0_tv_1.0.png" width="400px">
-<img src="data/style-images/vg_wheat_field_cropped.png" width="267px">
+<img src="data/examples/figures/figures_vg_wheat_field_w_350_m_vgg19_cw_100000.0_sw_300000.0_tv_1.0.jpg" width="400px">
+<img src="data/style-images/vg_wheat_field_cropped.jpg" width="267px">
 
-<img src="data/examples/figures/figures_vg_starry_night_w_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.png" width="400px">
-<img src="data/style-images/vg_starry_night_resized.png" width="267px">
+<img src="data/examples/figures/figures_vg_starry_night_w_350_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="400px">
+<img src="data/style-images/vg_starry_night_resized.jpg" width="267px">
 </p>
 
 *Note: all of the stylized images were produced by me (using this repo), credits for original image artists [are given bellow](#acknowledgements).*
