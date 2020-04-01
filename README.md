@@ -51,9 +51,19 @@ And here are some results coupled with their style:
 <img src="data/style-images/vg_starry_night_resized.png" width="267px">
 </p>
 
-*Note: all of the stylized images were produced by me (using this repo), credits for original images are given bellow [(acknowledgements)](#acknowledgements).*
+*Note: all of the stylized images were produced by me (using this repo), credits for original image artist [are given bellow](#acknowledgements).*
 
 ### Content/Style tradeoff
+
+Changing style weight gives you less or more style on the final image (makes sense right?) <br/>
+I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4) and used random image as initialization image.
+
+<p align="center">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10.0_tv_1.0.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_100.0_tv_1.0.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_1000.0_tv_1.0.jpg" width="225px">
+<img src="data/examples/style-tradeoff/figures_vg_starry_night_o_lbfgs_i_random_h_352_m_vgg19_cw_100000.0_sw_10000.0_tv_1.0" width="225px">
+</p>
 
 ### Impact of total variation (tv) loss
 
