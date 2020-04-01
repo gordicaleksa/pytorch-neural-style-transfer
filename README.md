@@ -91,7 +91,21 @@ Here you can see results for content, random and style initialization in that or
 
 You can also see that with style initialization we had some content from the artwork leaking directly into our output.
 
-Reconstruction of same images as from the [original paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf) (Fig 3.)
+### Famous "Figure 3" reconstruction
+
+Finally if I haven't included this portion you couldn't say that I've successfully reproduced the [original paper]((https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf)) (laughs in Python):
+
+<p align="center">
+<img src="data/examples/gatys_reconstruction/tubingen.jpg" width="300px">
+<img src="data/examples/gatys_reconstruction/tubingen_shipwreck_o_lbfgs_i_random_h_400_m_vgg19_cw_100000.0_sw_200.0_tv_1.0_resized.jpg" width="300px">
+<img src="data/examples/gatys_reconstruction/tubingen_starry-night_o_lbfgs_i_content_h_400_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="300px">
+
+<img src="data/examples/gatys_reconstruction/tubingen_the_scream_o_lbfgs_i_random_h_400_m_vgg19_cw_100000.0_sw_300.0_tv_1.0.jpg" width="300px">
+<img src="data/examples/gatys_reconstruction/tubingen_seated-nude_o_lbfgs_i_random_h_400_m_vgg19_cw_100000.0_sw_2000.0_tv_1.0.jpg" width="300px">
+<img src="data/examples/gatys_reconstruction/tubingen_kandinsky_o_lbfgs_i_content_h_400_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="300px">
+</p>
+
+I haven't give it much effort results can be much nicer.
 
 ### Content reconstruction
 
