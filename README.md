@@ -108,13 +108,12 @@ A: Increase total variation (tv) weight (usually by multiples of 10, again the t
 
 I've also included a file that will help you better understand how the algorithm works and what the neural net sees.<br/>
 What it does is that it allows you to visualize content **(feature maps)** and style representations **(Gram matrices)**.<br/>
-It will also reconstruct either only style or content using those representations. <br/> 
+It will also reconstruct either only style or content using those representations and corresponding model that produces them. <br/> 
 
 Just run this:<br/>
 `reconstruct_image_from_representation.py --should_reconstruct_content <Bool> --should_visualize_representation <Bool>`
 <br/>
-And that's it. <br/>
---should_visualize_representation if set to True will visualize these for you
+And that's it! --should_visualize_representation if set to True will visualize these for you<br/>
 --should_reconstruct_content picks between style and content reconstruction
 
 <p align="center">
@@ -135,8 +134,8 @@ I found these repos useful: (while developing this one)
 
 I found some of the content/style images I was using here:
 * [style/artistic images](https://www.rawpixel.com/board/537381/vincent-van-gogh-free-original-public-domain-paintings?sort=curated&mode=shop&page=1)
-* [awesome figures pic] (https://www.pexels.com/photo/action-android-device-electronics-595804/)
-* [awesome bridge pic] (https://www.pexels.com/photo/gray-bridge-and-trees-814499/)
+* [awesome figures pic](https://www.pexels.com/photo/action-android-device-electronics-595804/)
+* [awesome bridge pic](https://www.pexels.com/photo/gray-bridge-and-trees-814499/)
 
 Other images are now already classics in the NST world.
 
