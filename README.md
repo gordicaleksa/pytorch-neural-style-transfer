@@ -55,7 +55,7 @@ And here are some results coupled with their style:
 
 ### Content/Style tradeoff
 
-Changing style weight gives you less or more style on the final image, assuming you keep the content weight constant (makes sense right?) <br/>
+Changing style weight gives you less or more style on the final image, assuming you keep the content weight constant. <br/>
 I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4), while keeping content weight at constant 1e5, and I used random image as initialization image. 
 
 <p align="center">
@@ -67,7 +67,7 @@ I did increments of 10 here for style weight (1e1, 1e2, 1e3, 1e4), while keeping
 
 ### Impact of total variation (tv) loss
 
-Rarely explained the total variation loss i.e. it's corresponding weight controls the smoothness of the image. <br/>
+Rarely explained, the total variation loss i.e. it's corresponding weight controls the smoothness of the image. <br/>
 I also did increments of 10 here (1e1, 1e4, 1e5, 1e6) and I used content image as initialization image.
 
 <p align="center">
@@ -95,7 +95,23 @@ Reconstruction of same images as from the [original paper](https://www.cv-founda
 
 ### Content reconstruction
 
+If we only use the content (perceptual) loss and try to minimize that objective function this is what we get:
+
+<p align="center">
+<img src="data/examples/content_reconstruction/0000.jpg" width="225px">
+<img src="data/examples/content_reconstruction/0026.jpg" width="225px">
+<img src="data/examples/content_reconstruction/0070.jpg" width="225px">
+<img src="data/examples/content_reconstruction/0509.jpg" width="225px">
+</p>
+
+In steps 0, 26, 70 and 509 of the L-BFGS numerical optimizer, using layer relu3_1 for content representation.<br/> 
+Checkout [this section](#reconstruct-image-from-representation) if you want to play with this.
+
 ### Style reconstruction
+
+We can do the same thing for style:
+
+
 
 ## Setup
 
