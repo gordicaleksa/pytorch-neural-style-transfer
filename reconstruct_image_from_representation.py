@@ -81,7 +81,7 @@ def reconstruct_image_from_representation(config):
                 plt.imshow(feature_map)
                 plt.title(f'Feature map {i+1}/{num_of_feature_maps} from layer {content_feature_maps_index_name[1]} (model={config["model"]}) for {config["content_img_name"]} image.')
                 plt.show()
-                filename = 'fm_' + str(i).zfill(config['img_format'][0]) + config['img_format'][1]
+                filename = f'fm_{config["model"]}_{content_feature_maps_index_name[1]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
                 utils.save_image(feature_map, os.path.join(dump_path, filename))
     else:
         target_style_representation = [utils.gram_matrix(fmaps) for i, fmaps in enumerate(set_of_feature_maps) if i in style_feature_maps_indices_names[0]]
@@ -94,7 +94,7 @@ def reconstruct_image_from_representation(config):
                 plt.imshow(Gram_matrix)
                 plt.title(f'Gram matrix from layer {style_feature_maps_indices_names[1][i]} (model={config["model"]}) for {config["style_img_name"]} image.')
                 plt.show()
-                filename = 'gram_' + str(i).zfill(config['img_format'][0]) + config['img_format'][1]
+                filename = f'gram_{config["model"]}_{style_feature_maps_indices_names[1][i]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
                 utils.save_image(Gram_matrix, os.path.join(dump_path, filename))
 
     #
@@ -149,12 +149,12 @@ if __name__ == "__main__":
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=True)
-    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
+    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=False)
+    parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=True)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
-    parser.add_argument("--style_img_name", type=str, help="style image name", default='starry_night.jpg')
-    parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=512)
+    parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.png')
+    parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=500)
 
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=1)
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
