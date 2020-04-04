@@ -62,7 +62,11 @@ def save_image(img, img_path):
 
 def generate_out_img_name(config):
     prefix = config['content_img_name'].split('.')[0] + '_' + config['style_img_name'].split('.')[0]
-    suffix = f'_o_{config["optimizer"]}_i_{config["init_method"]}_h_{str(config["height"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
+    # called from the reconstruction script
+    if 'reconstruct_script' in config:
+        suffix = f'_o_{config["optimizer"]}_h_{str(config["height"])}_m_{config["model"]}{config["img_format"][1]}'
+    else:
+        suffix = f'_o_{config["optimizer"]}_i_{config["init_method"]}_h_{str(config["height"])}_m_{config["model"]}_cw_{config["content_weight"]}_sw_{config["style_weight"]}_tv_{config["tv_weight"]}{config["img_format"][1]}'
     return prefix + suffix
 
 

@@ -149,16 +149,17 @@ if __name__ == "__main__":
     # modifiable args - feel free to play with these (only small subset is exposed by design to avoid cluttering)
     #
     parser = argparse.ArgumentParser()
-    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=False)
+    parser.add_argument("--should_reconstruct_content", type=bool, help="pick between content or style image reconstruction", default=True)
     parser.add_argument("--should_visualize_representation", type=bool, help="visualize feature maps or Gram matrices", default=False)
 
     parser.add_argument("--content_img_name", type=str, help="content image name", default='lion.jpg')
     parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.jpg')
     parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=500)
 
-    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=1)
+    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
+    parser.add_argument("--reconstruct_script", type=str, help='dummy param - used in saving func', default=True)
     args = parser.parse_args()
 
     # just wrapping settings into a dictionary
