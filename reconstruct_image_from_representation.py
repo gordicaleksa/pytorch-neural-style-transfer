@@ -1,4 +1,5 @@
 import utils.utils as utils
+from utils.video_utils import create_video_from_intermediate_results
 
 import os
 import argparse
@@ -134,6 +135,8 @@ def reconstruct_image_from_representation(config):
         optimizer = torch.optim.LBFGS((optimizing_img,), max_iter=num_of_iterations[config['optimizer']], line_search_fn='strong_wolfe')
         optimizer.step(closure)
 
+    return dump_path
+
 
 if __name__ == "__main__":
     #
@@ -156,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument("--style_img_name", type=str, help="style image name", default='ben_giles.jpg')
     parser.add_argument("--height", type=int, help="width of content and style images (-1 keep original)", default=500)
 
-    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
+    parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=1)
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     parser.add_argument("--optimizer", type=str, choices=['lbfgs', 'adam'], default='lbfgs')
     parser.add_argument("--reconstruct_script", type=str, help='dummy param - used in saving func', default=True)
@@ -172,4 +175,6 @@ if __name__ == "__main__":
     optimization_config['img_format'] = img_format
 
     # reconstruct style or content image purely from their representation
-    reconstruct_image_from_representation(optimization_config)
+    results_path = reconstruct_image_from_representation(optimization_config)
+
+    # create_video_from_intermediate_results(results_path, img_format)
