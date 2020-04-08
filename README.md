@@ -151,10 +151,12 @@ Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/bl
 ## Usage
 
 1. Copy content images to the default content image directory: `/data/content-images/`
-2. Copy style iamges to the default style image directory: `/data/style-images/`
+2. Copy style images to the default style image directory: `/data/style-images/`
 3. Run `python neural_style_transfer.py --content_img_name <content-img-name> --style_img_name <style-img-name>`
 
 It's that easy. For more advanced usage take a look at the code it's (hopefully) self-explanatory (if you speak Python ^^).
+
+Or take a look at (this accompanying YouTube video)[https://www.youtube.com/watch?v=XWMwdkaLFsI], it explains how to use this repo in greater detail.
 
 Just run it! So that you can get something like this: :heart:
 <p align="center">
