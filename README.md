@@ -156,7 +156,7 @@ Follow through points 1 and 2 of [this setup](https://github.com/Petlja/PSIML/bl
 
 It's that easy. For more advanced usage take a look at the code it's (hopefully) self-explanatory (if you speak Python ^^).
 
-Or take a look at (this accompanying YouTube video)[https://www.youtube.com/watch?v=XWMwdkaLFsI], it explains how to use this repo in greater detail.
+Or take a look at [this accompanying YouTube video](https://www.youtube.com/watch?v=XWMwdkaLFsI), it explains how to use this repo in greater detail.
 
 Just run it! So that you can get something like this: :heart:
 <p align="center">
