@@ -12,8 +12,8 @@ alt="NST Intro" width="480" height="360" border="10" /></a>
 The algorithm transfers style from one input image (the style image) onto another input image (the content image) using CNN nets (usually VGG-16/19) and gives a composite, stylized image out which keeps the content from the content image but takes the style from the style image.
 
 <p align="center">
-<img src="data/examples/bridge/green_bridge_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="605"/>
-<img src="data/examples/bridge/content_style.jpg" width="272"/>
+<img src="data/examples/bridge/green_bridge_vg_la_cafe_o_lbfgs_i_content_h_500_m_vgg19_cw_100000.0_sw_30000.0_tv_1.0.jpg" width="595"/>
+<img src="data/examples/bridge/content_style.jpg" width="262"/>
 </p>
 
 ### Why yet another NST repo?
