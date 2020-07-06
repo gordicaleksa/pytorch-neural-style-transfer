@@ -136,7 +136,7 @@ In steps 45, 129 and 510 of the L-BFGS using layers relu1_1, relu2_1, relu3_1, r
 
 ## Setup
 
-1. Open Anaconda Prompt and navigate into project directory 'cd path_to_repo'
+1. Open Anaconda Prompt and navigate into project directory `cd path_to_repo`
 2. Run `conda env create` (while in project directory)
 3. Run `activate pytorch-nst`
 
