@@ -12,8 +12,8 @@ def create_video_from_intermediate_results(results_path, img_format):
     first_frame = 0
     number_of_frames_to_process = len(os.listdir(results_path))  # default don't trim take process every frame
 
-    ffmpeg = 'ffmpeg.exe'
-    if shutil.which(ffmpeg):  # if ffmpeg.exe is in system path
+    ffmpeg = 'ffmpeg'
+    if shutil.which(ffmpeg):  # if ffmpeg is in system path
         img_name_format = '%' + str(img_format[0]) + 'd' + img_format[1]  # example: '%4d.png' for (4, '.png')
         pattern = os.path.join(results_path, img_name_format)
         out_video_path = os.path.join(results_path, out_file_name)

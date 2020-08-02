@@ -70,6 +70,7 @@ def neural_style_transfer(config):
         # feature maps need to be of same size for content image and init image
         style_img_resized = utils.prepare_img(style_img_path, np.asarray(content_img.shape[2:]), device)
         init_img = style_img_resized
+
     # we are tuning optimizing_img's pixels! (that's why requires_grad=True)
     optimizing_img = Variable(init_img, requires_grad=True)
 
@@ -80,9 +81,7 @@ def neural_style_transfer(config):
     style_img_set_of_feature_maps = neural_net(style_img)
 
     target_content_representation = content_img_set_of_feature_maps[content_feature_maps_index_name[0]].squeeze(axis=0)
-
     target_style_representation = [utils.gram_matrix(x) for cnt, x in enumerate(style_img_set_of_feature_maps) if cnt in style_feature_maps_indices_names[0]]
-
     target_representations = [target_content_representation, target_style_representation]
 
     # magic numbers in general are a big no no - some things in this code are left like this by design to avoid clutter
