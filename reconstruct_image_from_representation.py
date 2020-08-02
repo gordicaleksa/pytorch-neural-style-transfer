@@ -44,7 +44,7 @@ def reconstruct_image_from_representation(config):
     should_reconstruct_content = config['should_reconstruct_content']
     should_visualize_representation = config['should_visualize_representation']
     dump_path = os.path.join(config['output_img_dir'], ('c' if should_reconstruct_content else 's') + '_reconstruction_' + config['optimizer'])
-    dump_path = os.path.join(dump_path, config['content_img_name'].split('.')[0] if should_reconstruct_content else config['style_img_name'].split('.')[0])
+    dump_path = os.path.join(dump_path, os.path.basename(config['content_img_name']).split('.')[0] if should_reconstruct_content else os.path.basename(config['style_img_name']).split('.')[0])
     os.makedirs(dump_path, exist_ok=True)
 
     content_img_path = os.path.join(config['content_images_dir'], config['content_img_name'])
