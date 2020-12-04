@@ -227,6 +227,13 @@ If you find this code useful for your research, please cite the following:
 }
 ```
 
+## Connect with me
+
+If you'd love to have some more AI-related content in your life :nerd_face:, consider:
+* Subscribing to my YouTube channel [The AI Epiphany](https://www.youtube.com/c/TheAiEpiphany) :bell:
+* Follow me on [LinkedIn](https://www.linkedin.com/in/aleksagordic/) and [Twitter](https://twitter.com/gordic_aleksa) :bulb:
+* Follow me on [Medium](https://gordicaleksa.medium.com/) :books: :heart:
+
 ## Licence
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/gordicaleksa/pytorch-neural-style-transfer/blob/master/LICENCE)
