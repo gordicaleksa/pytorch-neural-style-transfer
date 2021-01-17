@@ -57,7 +57,7 @@ def neural_style_transfer(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     content_img = utils.prepare_img(content_img_path, config['height'], device)
-    style_img = utils.prepare_img(style_img_path, config['height'], device)
+    style_img = utils.prepare_img(style_img_path, int(config['height'] * config['style_scale']), device)
 
     if config['init_method'] == 'random':
         # white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
@@ -152,6 +152,8 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, choices=['vgg16', 'vgg19'], default='vgg19')
     parser.add_argument("--init_method", type=str, choices=['random', 'content', 'style'], default='content')
     parser.add_argument("--saving_freq", type=int, help="saving frequency for intermediate images (-1 means only final)", default=-1)
+    parser.add_argument("--style_scale", type=float, help="style scale (1 means no scale)", default=1)
+
     args = parser.parse_args()
 
     # some values of weights that worked for figures.jpg, vg_starry_night.jpg (starting point for finding good images)
