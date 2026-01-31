@@ -1,0 +1,1 @@
+in models\definitions\vgg_nets.py, in class vgg19 there was a double '+' on line 197, which caused it to crash in some scenarios
